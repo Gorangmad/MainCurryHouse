@@ -4,7 +4,7 @@ spring:
       globalcors:  # Global CORS configuration
         corsConfigurations:
           '[/**]': 
-            allowedOrigins: "https://kronenbrunnen.de"  # Allow frontend requests
+            allowedOrigins: "http://localhost:3000"  # Allow frontend requests
             allowedMethods:  # Allowed HTTP methods
               - GET
               - POST
@@ -15,14 +15,14 @@ spring:
             allowCredentials: true  # Allow credentials
   data:
     mongodb:
-      uri: mongodb+srv://doadmin:2658kXKF7GtD309M@db-mongodb-fra1-68366-638f76d0.mongo.ondigitalocean.com/kronen?tls=true&authSource=admin
+      uri: mongodb+srv://doadmin:2658kXKF7GtD309M@db-mongodb-fra1-68366-638f76d0.mongo.ondigitalocean.com/MainCurry?tls=true&authSource=admin
     
 
   mail:
     host: mail.privateemail.com
     port: 587
-    username: info@kronenbrunnen.de
-    password: Kronen123
+    username: info@maincurryhouse.com
+    password: curry123
     protocol: smtp
     properties:
       mail:
@@ -31,3 +31,7 @@ spring:
           starttls:
             enable: true
     default-encoding: UTF-8
+  
+
+stripe:
+  apiKey: sk_test_51RJcIvIr86kt6GzJMmoLL6Rl7MdyawHwVRYox5hQ2jQaC5iqnOesUAJG9mEMGCTBMlDHtCQjp3JlOIQjnvgUXfw200VIMJGl9B

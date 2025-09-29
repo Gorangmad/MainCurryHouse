@@ -18,7 +18,7 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("https://walrus-app-kygqi.ondigitalocean.app/api/api/products");
+        const response = await fetch("http://localhost:3000/api/products");
         if (!response.ok) {
           throw new Error("Failed to fetch products.");
         }
@@ -47,7 +47,7 @@ const Products = () => {
   // Save the edited product details
   const handleSaveClick = async () => {
     try {
-      const response = await fetch(`https://walrus-app-kygqi.ondigitalocean.app/api/api/products/admin/${editProductId}`, {
+      const response = await fetch(`http://localhost:3000/api/products/admin/${editProductId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -77,7 +77,7 @@ const Products = () => {
   // Handle deleting a product
   const handleDeleteClick = async (productId) => {
     try {
-      const response = await fetch(`https://walrus-app-kygqi.ondigitalocean.app/api/api/products/admin/${productId}`, {
+      const response = await fetch(`http://localhost:3000/api/products/admin/${productId}`, {
         method: "DELETE",
       });
 
@@ -96,7 +96,7 @@ const Products = () => {
   const handleAddClick = async () => {
     try {
       const newId = Date.now().toString();
-      const response = await fetch("https://walrus-app-kygqi.ondigitalocean.app/api/api/products/admin/add", {
+      const response = await fetch("http://localhost:3000/api/products/admin/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

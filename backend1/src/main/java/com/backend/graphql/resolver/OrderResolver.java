@@ -106,7 +106,7 @@ public class OrderResolver {
         String emailContent = buildOrderEmailContent(newOrder);
         
         mailService.sendEmail(newOrder.getEmail(), customerSubject, emailContent);
-        mailService.sendEmail("info@kronenbrunnen.de", ownerSubject, emailContent); // Besitzer-Adresse anpassen
+        mailService.sendEmail("info@maincurryhouse.com", ownerSubject, emailContent); // Besitzer-Adresse anpassen
 
         return newOrder;
     }

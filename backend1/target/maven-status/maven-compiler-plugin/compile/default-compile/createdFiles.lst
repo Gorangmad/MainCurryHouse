@@ -1,3 +1,4 @@
+com\backend\graphql\util\PaymentMethodType.class
 com\backend\dataservice\util\ProductRepository.class
 com\backend\graphql\util\ProductServiceUtil.class
 com\backend\model\OpeningHours.class

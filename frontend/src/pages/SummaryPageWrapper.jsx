@@ -1,0 +1,121 @@
+// SummaryPageWrapper.jsx
+import React, { useEffect, useState } from "react";
+import { Elements } from "@stripe/react-stripe-js";
+import { stripePromise } from "../App";
+import SummaryPage from "./SummaryPage";
+
+// ---------------- CONFIG BY POSTCODE ----------------
+const ZONES = [
+  { label: "Ostend",        min: 15, fee: 1.00, codes: ["60314","60316","60385"] },
+  { label: "Sachsenhausen", min: 15, fee: 1.50, codes: ["60594","60596","60598"] },
+  { label: "Offenbach",     min: 20, fee: 2.00, ranges: ["63065-63075"] },
+  { label: "West-/Nordend", min: 25, fee: 2.00, codes: ["60318","60320","60322","60323","60325"] },
+  { label: "Galluswarte",   min: 28, fee: 2.50, codes: ["60326","60486"] },
+  { label: "Niederrad",     min: 28, fee: 2.50, codes: ["60528"] },
+  { label: "Oberrad",       min: 15, fee: 1.00, codes: ["60599"] },
+];
+
+const ABS_MIN = 15;
+const STD_DELIVERY = 2.50;
+
+// ---------------- HELPERS ----------------
+const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
+
+const extractPostcode = (raw) => {
+  const m = String(raw ?? "").match(/\b\d{5}\b/);
+  return m ? m[0] : "";
+};
+
+const inRange = (code, rangeStr) => {
+  const n = parseInt(code, 10);
+  const [a, b] = rangeStr.split("-").map((s) => parseInt(s, 10));
+  return Number.isFinite(n) && Number.isFinite(a) && Number.isFinite(b) && n >= a && n <= b;
+};
+
+const findZoneByPostcode = (postcode) => {
+  if (!postcode) return null;
+  for (const z of ZONES) {
+    if (z.codes && z.codes.includes(postcode)) return z;
+    if (z.ranges && z.ranges.some((r) => inRange(postcode, r))) return z;
+  }
+  return null;
+};
+
+const pricingFor = (postcode, subtotal) => {
+  const zone = findZoneByPostcode(postcode);
+  const min = zone?.min ?? ABS_MIN;
+  const fee = zone?.fee ?? STD_DELIVERY;
+
+  // Lieferkosten werden immer berechnet, unabhängig vom Warenkorbwert
+  const delivery = fee;
+
+  return { delivery: round2(delivery), min, zoneLabel: zone?.label ?? "DEFAULT", inZone: !!zone };
+};
+
+// ---------------- COMPONENT ----------------
+export default function SummaryPageWrapper() {
+  const [clientSecret, setClientSecret] = useState("");
+  const [subtotal, setSubtotal] = useState(0);
+  const [deliveryCost, setDeliveryCost] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [validationError, setValidationError] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      const data = JSON.parse(localStorage.getItem("checkoutFormData") || "{}");
+      const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+      const sub = savedCart.reduce(
+        (sum, item) => sum + (item.price || item.unitPrice || 0) * (item.quantity || 1),
+        0
+      );
+      setSubtotal(sub);
+
+
+      if (sub < ABS_MIN) {
+        setValidationError(`Der Mindestbestellwert beträgt ${ABS_MIN} Euro.`);
+        return;
+      }
+
+      const userPostcode = extractPostcode(data.postcode || "");
+      if (!userPostcode) {
+        setValidationError("Bitte geben Sie eine gültige Postleitzahl ein.");
+        return;
+      }
+      const { delivery } = pricingFor(userPostcode, sub);
+      setDeliveryCost(delivery);
+
+      const finalAmount = round2(sub + delivery);
+      setTotalAmount(finalAmount);
+
+      const response = await fetch("http://localhost:8080/graphql", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `
+            mutation {
+              createPayment(amount: ${finalAmount}, currency: "eur", paymentMethod: STRIPE) {
+                clientSecret
+              }
+            }
+          `,
+        }),
+      });
+      const result = await response.json();
+      setClientSecret(result?.data?.createPayment?.clientSecret || "");
+    })();
+  }, []);
+
+  if (validationError) return <p className="text-danger">{validationError}</p>;
+  if (!clientSecret) return <p>Lade Stripe …</p>;
+
+  return (
+    <Elements stripe={stripePromise} options={{ clientSecret }}>
+      <SummaryPage
+        subtotal={subtotal}
+        deliveryCost={deliveryCost}
+        totalAmount={totalAmount}
+      />
+    </Elements>
+  );
+}

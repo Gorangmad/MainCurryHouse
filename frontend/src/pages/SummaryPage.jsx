@@ -1,347 +1,210 @@
+// SummaryPage.jsx
 import React, { useEffect, useState } from "react";
-import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { FaShoppingCart } from "react-icons/fa";
 
-const minimumOrderByDistrict = {
-  "Somborn": 20,
-  "Neuses": 25,
-  "Altenmittlau": 25,
-  "Gondsroth": 25,
-  "Bernbach": 25,
-  "Horbach": 30,
-  "Niedermittlau": 30,
-  "Neuenhaßlau": 30,
-  "Rodenbach": 30,
-  "Linsengericht": 40,
-  "Geiselbach": 40,
-  "Gelnhausen": 40,
-  "Alzenau Michelbach": 40,
-};
+const round2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
 
-const deliveryCostByDistrict = {
-  "Somborn": 2,
-  "Neuses": 2.5,
-  "Altenmittlau": 2.5,
-  "Gondsroth": 2.5,
-  "Bernbach": 2.5,
-  "Horbach": 3,
-  "Niedermittlau": 3,
-  "Neuenhaßlau": 3,
-  "Rodenbach": 3,
-  "Linsengericht": 4,
-  "Geiselbach": 4,
-  "Gelnhausen": 4,
-  "Alzenau Michelbach": 4,
-};
-
-const absoluteMinimum = 15;
-const standardDeliveryCost = 6.99;
-
-const getDistrictFromAddress = async (address, postcode) => {
-  const query = encodeURIComponent(`${address}, ${postcode}, Deutschland`);
-  const url = `https://nominatim.openstreetmap.org/search?q=${query}&format=json&addressdetails=1`;
-
-  try {
-    const response = await fetch(url, {
-      headers: { "User-Agent": "DeinShop/1.0" },
-    });
-
-    const data = await response.json();
-    if (data.length > 0) {
-      const addressDetails = data[0].address;
-      return (
-        addressDetails.suburb ||
-        addressDetails.village ||
-        addressDetails.town ||
-        addressDetails.city_district ||
-        addressDetails.city ||
-        ""
-      );
-    } else {
-      return "";
-    }
-  } catch (error) {
-    console.error("Fehler bei der Stadtteil-Erkennung:", error);
-    return "";
-  }
-};
-
-const calculateDeliveryCost = (district, subtotal) => {
-  const minOrder = minimumOrderByDistrict[district] || absoluteMinimum;
-  const customDeliveryCost = deliveryCostByDistrict[district] ?? standardDeliveryCost;
-
-  if (subtotal < absoluteMinimum) return standardDeliveryCost;
-  if (subtotal < minOrder) return customDeliveryCost;
-  return 0;
-};
-
-const isDeliverableDistrict = (district) => {
-  return Object.keys(minimumOrderByDistrict).includes(district);
-};
-
-const SummaryPage = () => {
+const SummaryPage = ({ subtotal: subtotalProp = 0, deliveryCost = 0, totalAmount: totalAmountProp }) => {
   const stripe = useStripe();
   const elements = useElements();
 
   const [formData, setFormData] = useState({});
   const [cart, setCart] = useState([]);
-  const [deliveryCost, setDeliveryCost] = useState(0);
-  const [subtotal, setSubtotal] = useState(0);
-  const [totalAmount, setTotalAmount] = useState(0);
+  const [subtotal, setSubtotal] = useState(subtotalProp);
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
+    // load display data
     const data = JSON.parse(localStorage.getItem("checkoutFormData") || "{}");
-    const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
-
     setFormData(data);
+    const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
     setCart(savedCart);
 
-    const subtotalCalculated = savedCart.reduce((sum, item) => {
-      const itemPrice = item.price || item.unitPrice || 0;
-      return sum + itemPrice * (item.quantity || 1);
-    }, 0);
+    // if wrapper didn’t pass subtotal, compute it here as a fallback
+    if (subtotalProp === 0) {
+      const sub = savedCart.reduce(
+        (sum, item) => sum + (item.price || item.unitPrice || 0) * (item.quantity || 1),
+        0
+      );
+      setSubtotal(sub);
+    } else {
+      setSubtotal(subtotalProp);
+    }
+  }, [subtotalProp]);
 
-    const fetchDistrictAndCalculate = async () => {
-      const district = await getDistrictFromAddress(data.address, data.postcode);
-      data.district = district;
-      setFormData((prev) => ({ ...prev, district }));
+  // Prefer the amount from the wrapper; otherwise compute from subtotal+deliveryCost
+  const computedTotal = totalAmountProp != null ? Number(totalAmountProp) : round2(subtotal + deliveryCost);
 
-      const delivery = calculateDeliveryCost(district, subtotalCalculated);
-      setDeliveryCost(delivery);
-      setSubtotal(subtotalCalculated);
-      setTotalAmount(subtotalCalculated + delivery);
-    };
-
-    fetchDistrictAndCalculate();
-  }, []);
-
-  if (formData.district && !isDeliverableDistrict(formData.district)) {
-    return (
-      <div className="container mt-4">
-        <h2>Bestellübersicht</h2>
-        <p className="text-danger mt-3">
-          Wir liefern aktuell leider nicht in dieses Gebiet ({formData.district}).<br />
-          Bitte kontaktieren Sie uns telefonisch für weitere Informationen.
-        </p>
-      </div>
-    );
-  }
-
-  const handlePayment = async () => {
+  // Hilfsfunktion für Order-Mutation
+  const submitOrder = async (paymentMethod) => {
     setLoading(true);
     setError("");
-    setSuccess("");
-
-    if (!stripe || !elements) {
-      setError("Stripe is not loaded.");
-      setLoading(false);
-      return;
-    }
-
-    const cardElement = elements.getElement(CardElement);
-    if (!cardElement) {
-      setError("Card Element not found.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const { paymentMethod, error: paymentError } = await stripe.createPaymentMethod({
-        type: "card",
-        card: cardElement,
-        billing_details: {
-          name: formData.name || "Unknown",
-          email: formData.email || "",
-          phone: formData.phoneNumber || "",
-          address: {
-            line1: formData.address || "Unknown",
-            postal_code: formData.postcode || "",
-          },
-        },
-      });
-
-      if (paymentError) {
-        setError(paymentError.message);
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch("https://walrus-app-kygqi.ondigitalocean.app/api/graphql", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query: `
-            mutation {
-              createPayment(
-                amount: ${totalAmount}, 
-                currency: "eur", 
-                paymentMethod: STRIPE, 
-                paymentMethodId: "${paymentMethod.id}"
-              ) {
-                id
-                status
-                clientSecret
-              }
-            }
-          `,
-        }),
-      });
-
-      const jsonResponse = await response.json();
-      const clientSecret = jsonResponse?.data?.createPayment?.clientSecret;
-
-      if (!clientSecret) {
-        setError("Client secret not received.");
-        setLoading(false);
-        return;
-      }
-
-      setSuccess("Zahlung erfolgreich!");
-      await placeOrder();
-    } catch (err) {
-      setError("Fehler bei der Zahlung. Bitte versuche es erneut.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const placeOrder = async () => {
-    setLoading(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      const products = cart.map((item) => ({
-        productId: String(item.productId),
-        quantity: item.quantity,
-        name: item.name,
-        unitPrice: item.unitPrice || item.price,
-      }));
-
-      const orderResponse = await fetch("https://walrus-app-kygqi.ondigitalocean.app/api/graphql", {
+      const orderInput = {
+        customerUsername: formData.name || "",
+        companyName: formData.companyName || "",
+        email: formData.email || "",
+        address: `${formData.address || ''}, ${formData.postcode || ''}`,
+        phoneNumber: formData.phone || "",
+        notes: formData.notes || "",
+        products: cart.map(item => ({
+          productId: String(item.productId),
+          quantity: item.quantity,
+          name: item.name,
+          unitPrice: item.unitPrice || item.price,
+          selectedSize: item.selectedSize || null
+        })),
+        deliveryCost: deliveryCost,
+        paymentMethod: paymentMethod
+      };
+      const response = await fetch("http://localhost:8080/graphql", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: `
             mutation CreateOrder($input: OrderInput!) {
-              createOrder(input: $input) {
-                id
-                customerUsername
-              }
+              createOrder(input: $input) { id }
             }
           `,
-          variables: {
-            input: {
-              customerUsername: formData.name,
-              email: formData.email,
-              address: formData.address,
-              phoneNumber: formData.phoneNumber,
-              notes: formData.notes,
-              deliveryCost,
-              products,
-              paymentMethod: paymentMethod.toUpperCase(),
-            },
-          },
-        }),
+          variables: { input: orderInput }
+        })
       });
-
-      const result = await orderResponse.json();
-
-      if (!result?.data?.createOrder) {
-        throw new Error(result.errors?.[0]?.message || "Fehler bei der Bestellung.");
+      const result = await response.json();
+      if (result.errors) {
+        const msg = result.errors[0]?.message || "Fehler beim Absenden der Bestellung. Bitte versuchen Sie es erneut.";
+        setError("Fehler beim Absenden der Bestellung: " + msg);
+        setLoading(false);
+        return false;
       }
-
-      setSuccess("Bestellung erfolgreich abgeschlossen!");
       localStorage.removeItem("cart");
+      setSuccess("Bestellung erfolgreich abgeschlossen! Eine Bestätigung wurde per E-Mail versendet.");
+      setTimeout(() => (window.location.href = "/success"), 2000);
+      setLoading(false);
+      return true;
+    } catch (e) {
+      setError("Fehler beim Absenden der Bestellung. Bitte versuchen Sie es erneut.");
+      setLoading(false);
+      return false;
+    }
+  };
 
-      setTimeout(() => {
-        window.location.href = "/success";
-      }, 2000);
-    } catch (err) {
-      setError("Fehler bei der Bestellung.");
-      console.error(err);
-    } finally {
+  const handleStripePayment = async () => {
+    if (!stripe || !elements) return;
+    setLoading(true);
+    setError("");
+    const { error, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      redirect: 'if_required', // Damit return_url nicht benötigt wird
+    });
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return;
+    }
+    // Nur wenn der Status "succeeded" ist, Bestellung anlegen
+    if (paymentIntent && paymentIntent.status === "succeeded") {
+      await submitOrder("CARD");
+    } else {
+      setError("Zahlung nicht erfolgreich abgeschlossen.");
       setLoading(false);
     }
   };
 
+  const placeCashOrder = async () => {
+    await submitOrder("CASH");
+  };
+
   return (
     <div className="container mt-4">
-      <h2>Bestellübersicht</h2>
-
-      <div className="mb-3">
-        <h5>Kundendaten</h5>
-        <p>{formData.name}</p>
-        <p>{formData.address}, {formData.postcode}</p>
-        <p>{formData.email}</p>
-        {formData.district && <p><strong>Ortsteil:</strong> {formData.district}</p>}
+      <div className="p-4 bg-light border rounded mb-4 text-center">
+        <div className="logo-placeholder mb-2"></div>
+        <h2 className="m-0">Dein Firmenname</h2>
       </div>
 
-      <div className="mb-3">
-        <h5>Produkte</h5>
-        {cart.map(item => (
-          <div key={item.productId}>
-            {item.name} × {item.quantity} – €{(item.unitPrice || item.price).toFixed(2)}
+      <div className="row">
+        <div className="col-md-5 mb-4">
+          <div className="p-4 border rounded">
+            <h5>Kundendaten</h5>
+            <hr />
+            <p><strong>Name:</strong><br />{formData.name}</p>
+            <p><strong>Adresse:</strong><br />{formData.address}, {formData.postcode}</p>
+            <p><strong>Email:</strong><br />{formData.email}</p>
           </div>
-        ))}
-      </div>
-
-      <div className="mb-3">
-        <p>Zwischensumme: €{subtotal.toFixed(2)}</p>
-        <p>Lieferkosten: €{deliveryCost.toFixed(2)}</p>
-        <h4>Gesamtbetrag: €{totalAmount.toFixed(2)}</h4>
-      </div>
-
-      <div className="mb-3">
-        <button className={`btn ${paymentMethod === "cash" ? "btn-dark" : "btn-outline-dark"}`} onClick={() => setPaymentMethod("cash")} disabled={loading}>Barzahlung</button>
-        <button className={`btn ms-2 ${paymentMethod === "card" ? "btn-dark" : "btn-outline-dark"}`} onClick={() => setPaymentMethod("card")} disabled={loading}>Kartenzahlung</button>
-      </div>
-
-      {paymentMethod === "card" && (
-        <>
-          <div className="card p-3 border rounded mt-3">
-            <CardElement className="form-control" />
-          </div>
-          <div className="position-relative mt-3">
-            <button
-              onClick={handlePayment}
-              disabled={loading}
-              className="btn btn-brown w-100"
-            >
-              {loading ? "Zahlung läuft..." : `Jetzt €${totalAmount.toFixed(2)} bezahlen`}
-            </button>
-            {loading && (
-              <div className="loading-overlay d-flex justify-content-center align-items-center">
-                <div className="spinner-border text-light" role="status"></div>
-              </div>
-            )}
-          </div>
-        </>
-      )}
-
-      {paymentMethod === "cash" && (
-        <div className="position-relative">
-          <button
-            className="btn btn-success w-100"
-            onClick={placeOrder}
-            disabled={loading}
-          >
-            Bestellung abschließen (Barzahlung)
-          </button>
-          {loading && (
-            <div className="loading-overlay d-flex justify-content-center align-items-center">
-              <div className="spinner-border text-light" role="status"></div>
-            </div>
-          )}
         </div>
-      )}
 
-      {error && <p className="text-danger mt-3">{error}</p>}
-      {success && <p className="text-success mt-3">{success}</p>}
+        <div className="col-md-7 mb-4">
+          <div className="p-4 border rounded">
+            <h5><FaShoppingCart className="me-2" />Produkte</h5>
+            <hr />
+            {cart.map(item => (
+              <div key={item.productId} className="d-flex justify-content-between border-bottom py-2">
+                <div>
+                  <strong>{item.name}</strong><br />
+                  Menge: {item.quantity} × €{(item.unitPrice || item.price).toFixed(2)}
+                </div>
+                <div>
+                  €{((item.unitPrice || item.price) * item.quantity).toFixed(2)}
+                </div>
+              </div>
+            ))}
+
+            <div className="mt-3">
+              <p>Zwischensumme: €{round2(subtotal).toFixed(2)}</p>
+              <p>Lieferkosten: €{round2(deliveryCost).toFixed(2)}</p>
+              <h5>Gesamt: €{round2(computedTotal).toFixed(2)}</h5>
+            </div>
+
+            <hr />
+            <h6>Zahlungsart wählen:</h6>
+            <div className="mb-3">
+              <button
+                className={`btn ${paymentMethod === "cash" ? "btn-dark" : "btn-outline-dark"} me-2`}
+                onClick={() => setPaymentMethod("cash")}
+              >
+                Barzahlung
+              </button>
+              <button
+                className={`btn ${paymentMethod === "card" ? "btn-dark" : "btn-outline-dark"}`}
+                onClick={() => setPaymentMethod("card")}
+              >
+                Kartenzahlung
+              </button>
+            </div>
+
+            {paymentMethod === "card" && (
+              <>
+                <div className="p-3 border rounded">
+                  <PaymentElement />
+                </div>
+                <button
+                  onClick={handleStripePayment}
+                  disabled={loading}
+                  className="btn btn-primary w-100 mt-3"
+                >
+                  {loading ? "Zahlung läuft..." : `Jetzt €${round2(computedTotal).toFixed(2)} bezahlen`}
+                </button>
+              </>
+            )}
+
+            {paymentMethod === "cash" && (
+              <button className="btn btn-success w-100" onClick={placeCashOrder} disabled={loading}>
+                Bestellung abschließen (Barzahlung)
+              </button>
+            )}
+
+            {error && <p className="text-danger mt-3">{error}</p>}
+            {success && <p className="text-success mt-3">{success}</p>}
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        .logo-placeholder { width: 100px; height: 100px; background: #ddd; border-radius: 50%; margin: 0 auto; }
+      `}</style>
     </div>
   );
 };

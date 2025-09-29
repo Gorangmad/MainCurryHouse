@@ -6,8 +6,8 @@ const Footer = () => {
     <footer className="container-fluid footer text-white py-5" style={{ backgroundColor: "#4E342E" }}>
       <div className="row text-center">
         <div className="col-12">
-          <h1 className="fw-bold" id="footer-text" style={{ fontSize: "4rem", color: "#f8d7da" }}>KRONNENBRUNNEN</h1>
-          <p className="fst-italic" style={{ fontSize: "1.5rem" }}>Bar &bull; Restaurant &bull; Pizzeria</p>
+          <h1 className="fw-bold" id="footer-text" style={{ fontSize: "4rem", color: "#f8d7da"  }}>MAIN CURRY HOUSE</h1>
+          <p className="fst-italic" style={{ fontSize: "1.5rem" }}>Catering &bull; Lieferservice &bull; Private Dining &bull; Events</p>
         </div>
       </div>
       <div className="row text-center mt-4">
@@ -26,9 +26,9 @@ const Footer = () => {
         </div>
         <div className="col-md-4">
           <p className="fw-bold">Wo sie uns finden?</p>
-          <p>Josefstraße 18, 63579 Freigericht</p>
-          <p>060559337531</p>
-          <p>info@KRONNENBRUNNEN.com</p>
+          <p>Mainwasenweg 32, 60599 Frankfurt am Main</p>
+          <p>069 651234</p>
+          <p>info@maincurryhouse.de</p>
         </div>
       </div>
       <div className="row text-center mt-4">

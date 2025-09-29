@@ -9,7 +9,7 @@ const Inventory = () => {
   useEffect(() => {
     const fetchInventory = async () => {
       try {
-        const response = await fetch("https://walrus-app-kygqi.ondigitalocean.app/api/api/products"); // Fetch products from API
+        const response = await fetch("http://localhost:3000/api/products"); // Fetch products from API
         if (!response.ok) {
           throw new Error("Failed to fetch inventory.");
         }
@@ -35,7 +35,7 @@ const Inventory = () => {
 
   const handleSaveClick = async () => {
     try {
-      const response = await fetch(`https://walrus-app-kygqi.ondigitalocean.app/api/api/products/admin/${editProductId}`, {
+      const response = await fetch(`http://localhost:3000/api/products/admin/${editProductId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

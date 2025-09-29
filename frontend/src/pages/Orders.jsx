@@ -30,7 +30,7 @@ const Orders = () => {
             }
         }`;
 
-        const response = await fetch("https://walrus-app-kygqi.ondigitalocean.app/api/graphql", {
+        const response = await fetch("http://localhost:3000/graphql", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ query }),
@@ -82,7 +82,7 @@ const Orders = () => {
         },
       });
   
-      const response = await fetch("https://walrus-app-kygqi.ondigitalocean.app/api/graphql", {
+      const response = await fetch("http://localhost:3000/graphql", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

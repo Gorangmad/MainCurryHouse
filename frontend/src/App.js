@@ -19,9 +19,10 @@ import AGB from './pages/AGB.jsx';
 import OnlineOrdering from './pages/OrderPage.jsx';
 import SummaryPage from './pages/SummaryPage.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import SummaryPageWrapper from './pages/SummaryPageWrapper.jsx';
 
 // ✅ Load Stripe with your **public key**
-const stripePromise = loadStripe("pk_test_51JlxjKIsIcjwovkaVR6ZmlU1la0EtSl3yONoKLyLOg5EN3uQAboOdkayMglCHtoGv8T7uqJo38Vwrz2WBwGxL3F3001vhfe8l5");
+export const stripePromise = loadStripe("pk_test_51RJcIvIr86kt6GzJcZGJkRkiDaQneWETARimnMVmqPBrV8LXrpI0iGy4h2Cz2pe5pTUbcX6Cx1g4Abzn0F3tmUJV000dYf8o0O");
 
 // PrivateRoute 
 const PrivateRoute = ({ element, token }) => {
@@ -73,7 +74,7 @@ const App = () => {
 
           {/* ✅ Stripe Checkout is inside DetailsPage */}
           <Route path="/details" element={<DetailsPage tokenData={decodedToken} />} />
-          <Route path="/summary" element={<SummaryPage tokenData={decodedToken} />} />
+          <Route path="/summary" element={<SummaryPageWrapper />} />
 
           {/* Admin Routes (Require Admin Role) */}
           <Route path="/admin" element={<AdminRoute element={<AdminPage />} token={decodedToken} />} />

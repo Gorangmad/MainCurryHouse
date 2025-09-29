@@ -13,7 +13,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")  // Gilt für alle Endpunkte
-                        .allowedOrigins("https://kronenbrunnen.de/")  // Erlaubte Ursprünge
+                        .allowedOrigins("http://localhost:3000/")  // Erlaubte Ursprünge
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")  // Erlaubte Methoden
                         .allowedHeaders("*")  // Alle Header erlaubt
                         .allowCredentials(true);  // Cookies und Authentifizierung erlauben

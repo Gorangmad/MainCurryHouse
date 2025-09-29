@@ -1,199 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { jwtDecode } from "jwt-decode";
-import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import orderImage from "../Home.jpg";
 import Navbar from "../components/Navbar";
+import orderImage from "../Home.jpg";
 import { useNavigate } from "react-router-dom";
-
-const CheckoutForm = ({ totalAmount, formData, cart }) => {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
-  const handlePayment = async (event) => {
-    event.preventDefault();
-    console.log("handlePayment triggered!");
-  
-    setError("");
-    setSuccess("");
-    setLoading(true);  // Show loading animation
-  
-    if (!stripe || !elements) {
-      setError("Stripe.js has not loaded yet.");
-      setLoading(false);
-      return;
-    }
-  
-    const cardElement = elements.getElement(CardElement);
-    if (!cardElement) {
-      setError("Card element not found.");
-      setLoading(false);
-      return;
-    }
-  
-    try {
-      console.log("Form Data:", formData);
-
-      // 1. Create Payment Method
-      const { paymentMethod, error: paymentError } = await stripe.createPaymentMethod({
-        type: "card",
-        card: cardElement,
-        billing_details: {
-          name: formData?.name || "Unknown",
-          email: formData?.email || "",
-          phone: formData?.phoneNumber || "",
-          address: {
-            line1: formData?.address || "Unknown",
-            postal_code: formData?.postcode || "",
-          },
-        },
-      });
-
-      if (paymentError) {
-        setError(paymentError.message);
-        console.error("Payment Method Error:", paymentError.message);
-        setLoading(false);
-        return;
-      }
-
-      console.log("Payment Method Created:", paymentMethod.id);
-
-      // 2. Send Payment Method ID to the Backend
-      const response = await fetch("https://walrus-app-kygqi.ondigitalocean.app/api/graphql", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query: `
-          mutation {
-            createPayment(
-              amount: ${totalAmount}, 
-              currency: "eur", 
-              paymentMethod: STRIPE, 
-              paymentMethodId: "${paymentMethod.id}"
-            ) {
-              id
-              status
-              clientSecret
-            }
-          }
-          `,
-        }),
-      });
-
-      const jsonResponse = await response.json();
-      console.log("GraphQL Response:", jsonResponse);
-      
-      if (!jsonResponse.data || !jsonResponse.data.createPayment || !jsonResponse.data.createPayment.clientSecret) {
-        console.error("Client secret missing in response:", jsonResponse);
-        setError("Payment failed: Client secret not found.");
-        setLoading(false);
-        return;
-      }
-
-      console.log("Skipping manual confirmation because PaymentIntent is already confirmed.");
-      setSuccess("Payment successful!");
-
-      // 3. If payment is successful, place the order
-      await placeOrder();
-
-    } catch (err) {
-      setError("Payment failed. Please try again.");
-      console.error("Payment Error:", err);
-      setLoading(false);
-    }
-};
-
-const placeOrder = async () => {
-  try {
-    console.log("Placing order...");
-
-    // Prepare products array for GraphQL mutation
-    const products = cart.map((item) => ({
-      productId: item.productId,
-      quantity: item.quantity,
-      name: item.name,
-      unitPrice: item.unitPrice,
-      selectedSize: item.selectedSize,
-    }));
-
-    const orderResponse = await fetch("https://walrus-app-kygqi.ondigitalocean.app/api/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: `
-        mutation CreateOrder($input: OrderInput!) {
-          createOrder(input: $input) {
-            id
-            customerUsername
-            totalAmount
-            status
-            createdAt
-            products {
-              productId
-              name
-              quantity
-              unitPrice
-              selectedSize
-            }
-          }
-        }
-        `,
-        variables: {
-          input: {
-            customerUsername: formData.name, // Keep this if your GraphQL schema requires it
-            email: formData.email,
-            address: formData.address,
-            phoneNumber: formData.phoneNumber,
-            notes: formData.notes,
-            products: products, // Pass the correct product array
-          },
-        },
-      }),
-    });
-
-    console.log(products)
-
-    const orderJson = await orderResponse.json();
-    console.log("Order Response:", orderJson);
-
-    if (!orderJson.data || !orderJson.data.createOrder) {
-      const errorMessage = orderJson.errors?.[0]?.message || "Order placement failed.";
-      throw new Error(errorMessage);
-    }
-    console.log("✅ Order placed successfully!");
-
-    // ✅ Redirect to Success Page
-    // setTimeout(() => {
-    //   window.location.href = "/success"; // Redirect after success
-    // }, 2000);
-
-  } catch (err) {
-    setError("❌ Order placement failed. Please contact support.");
-    console.error(err.response?.errors ?? err.message);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-
-
-  return (
-    <div className="payment-form">
-      <div className="card p-3 border rounded mt-3">
-        <CardElement className="form-control" />
-      </div>
-      {error && <p className="text-danger mt-2">{error}</p>}
-      {success && <p className="text-success mt-2">{success}</p>}
-      <button onClick={handlePayment} className="btn btn-brown mt-3 w-100" disabled={!stripe || loading}>
-        {loading ? "Processing..." : `Pay €${(totalAmount || 0).toFixed(2)}`}
-      </button>
-    </div>
-  );
-};
-
 
 const DetailsPage = () => {
   const navigate = useNavigate();
@@ -211,11 +20,11 @@ const DetailsPage = () => {
     postcode: '',
     etage: '',
     notes: '',
+    deliveryOption: '', // NEU
   });
 
   const [cart, setCart] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState("cash");
 
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -225,22 +34,19 @@ const DetailsPage = () => {
       const itemPrice = item.price || item.unitPrice || 0;
       return sum + itemPrice * (item.quantity || 1);
     }, 0);
-
     setTotalAmount(total);
 
     const token = localStorage.getItem("token");
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        setFormData({
+        setFormData((prev) => ({
+          ...prev,
           name: decoded.sub || '',
           email: decoded.email || '',
           phoneNumber: decoded.phoneNumber || '',
           address: decoded.address || '',
-          postcode: '',
-          etage: '',
-          notes: '',
-        });
+        }));
       } catch (error) {
         console.error("Invalid token:", error);
       }
@@ -269,50 +75,127 @@ const DetailsPage = () => {
       <div className="container mt-4">
         <div className="row">
           <div className="col-md-6">
-            <h3 className="mb-3">Customer Information</h3>
+            <h3 className="mb-3">Kundendaten</h3>
             <form onSubmit={(e) => e.preventDefault()}>
-              {["name", "address", "postcode", "email", "phoneNumber", "notes"].map((field) => (
-                <div className="mb-3" key={field}>
-                  <label className="form-label">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
-                  <input
-                    type="text"
-                    name={field}
-                    className="form-control"
-                    value={formData[field]}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-              ))}
 
+              <div className="mb-3">
+                <label className="form-label">Lieferoption</label>
+                <select
+                  name="deliveryOption"
+                  className="form-select"
+                  value={formData.deliveryOption}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Bitte wählen</option>
+                  <option value="delivery">Lieferung</option>
+                  <option value="pickup">Abholung</option>
+                </select>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  className="form-control"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              {formData.deliveryOption === "delivery" && (
+                <>
+                  <div className="mb-3">
+                    <label className="form-label">Adresse</label>
+                    <input
+                      type="text"
+                      name="address"
+                      className="form-control"
+                      value={formData.address}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Postleitzahl</label>
+                    <input
+                      type="text"
+                      name="postcode"
+                      className="form-control"
+                      value={formData.postcode}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="mb-3">
+                <label className="form-label">E-Mail</label>
+                <input
+                  type="email"
+                  name="email"
+                  className="form-control"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Telefonnummer</label>
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  className="form-control"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Notizen</label>
+                <input
+                  type="text"
+                  name="notes"
+                  className="form-control"
+                  value={formData.notes}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <button
+                onClick={handleNext}
+                className="btn btn-dark w-100 mt-3"
+              >
+                Weiter zur Bestellübersicht
+              </button>
             </form>
           </div>
 
           <div className="col-md-6">
-            <h3 className="mb-3">Products in Your Cart</h3>
+            <h3 className="mb-3">Produkte im Warenkorb</h3>
             {cart.length === 0 ? (
-              <p className="text-center text-danger">Your cart is empty.</p>
+              <p className="text-center text-danger">Dein Warenkorb ist leer.</p>
             ) : (
               <div className="cart-box-container">
                 {cart.map((item) => (
                   <div key={item.productId} className="cart-item-box">
                     <h5>{item.name} {item.selectedSize ? `(${item.selectedSize})` : ""}</h5>
-                    <p>Price: €{(item.price || item.unitPrice || 0).toFixed(2)}</p>
-                    <p>Quantity: {item.quantity}</p>
+                    <p>Preis: €{(item.price || item.unitPrice).toFixed(2)}</p>
+                    <p>Menge: {item.quantity}</p>
                   </div>
                 ))}
-                <h4 className="mt-3 text-end fw-bold">Total: €{(totalAmount || 0).toFixed(2)}</h4>
+                <h4 className="mt-3 text-end fw-bold">Gesamt: €{totalAmount.toFixed(2)}</h4>
               </div>
             )}
           </div>
-                        {/* Deine Form */}
-                        <button onClick={handleNext} className="btn btn-dark w-100 mt-3">
-                Weiter zur Bestellübersicht
-              </button>
         </div>
       </div>
 
-      {/* Basic CSS Styling */}
       <style>{`
         .full-width-image-container {
           position: relative;
@@ -343,14 +226,9 @@ const DetailsPage = () => {
           border-radius: 8px;
           margin-bottom: 10px;
         }
-        .btn-brown {
-          background-color: #8B4513;
-          color: white;
-        }
       `}</style>
     </>
   );
 };
 
 export default DetailsPage;
-

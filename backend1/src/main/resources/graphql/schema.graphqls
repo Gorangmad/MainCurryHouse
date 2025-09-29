@@ -7,10 +7,10 @@ type Query {
 type Mutation {
     createOrder(input: OrderInput!): Order!
     updateOrderStatus(orderId: String!, newStatus: String!): Order
-    createPayment(amount: Float!, currency: String!, paymentMethod: PaymentMethod!, paymentMethodId: String): PaymentResponse!
+    createPayment(amount: Float!, currency: String!, paymentMethod: PaymentMethodType!, paymentMethodId: String): PaymentResponse!
 }
 
-enum PaymentMethod {
+enum PaymentMethodType {
     CASH
     STRIPE
     CARD
@@ -19,7 +19,7 @@ enum PaymentMethod {
 type PaymentIntent {
     id: String
     status: String!
-    method: PaymentMethod!
+    method: PaymentMethodType!
 }
 
 type Payment {
@@ -59,6 +59,7 @@ type OrderProduct {
 
 input OrderInput {
   customerUsername: String!
+  companyName: String # Optional
   email: String # Optional
   address: String # Optional
   phoneNumber: String # Optional

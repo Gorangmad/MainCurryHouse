@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 export default function UsersPage() {
-  const API_URL = "https://walrus-app-kygqi.ondigitalocean.app/api/users"; // API base URL
+  const API_URL = "http://localhost:3000/users"; // API base URL
   const [users, setUsers] = useState([]); // State to store users data
   const [form, setForm] = useState({ // State for form inputs
     username: "", password: "", role: "", email: "", phoneNumber: "", address: "", companyName: ""

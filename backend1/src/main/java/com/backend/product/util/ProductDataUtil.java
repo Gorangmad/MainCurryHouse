@@ -30,7 +30,7 @@
 //     private final RestTemplate restTemplate = new RestTemplate();
     
 //     // API endpoint for fetching and storing product data
-//     private static final String DATA_SERVICE_URL = "https://walrus-app-kygqi.ondigitalocean.app/api/products-data"; 
+//     private static final String DATA_SERVICE_URL = "http://localhost:3000/products-data"; 
 
 //     /**
 //      * Loads the list of products from the external data service.

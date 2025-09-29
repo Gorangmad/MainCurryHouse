@@ -11,7 +11,7 @@ import java.util.List;
 @Component
 public class ProductServiceUtil {
     private final RestTemplate restTemplate = new RestTemplate();
-    private static final String PRODUCT_SERVICE_URL = "https://walrus-app-kygqi.ondigitalocean.app/api/products-data";
+    private static final String PRODUCT_SERVICE_URL = "http://localhost:3000/products-data";
 
     // ✅ Get all products (including availableQuantity)
     public List<Product> loadProducts() throws IOException {

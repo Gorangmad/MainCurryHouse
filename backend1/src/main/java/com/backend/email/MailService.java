@@ -22,7 +22,7 @@ public class MailService {
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(body, true);
-            helper.setFrom("info@kronenbrunnen.de");
+            helper.setFrom("info@maincurryhouse.com");
             mailSender.send(message);
         } catch (MessagingException e) {
             e.printStackTrace(); // Optional: Logging statt Systemausgabe

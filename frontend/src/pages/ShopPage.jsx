@@ -1,329 +1,574 @@
-import React from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { FaShoppingBag } from "react-icons/fa";
-import "../index.css";
-import { useRef } from "react";
-import { Carousel } from "react-bootstrap"; // Corrected import
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import React, { useState, useEffect } from "react";
+import drinksImg from '../img/Drinks.jpg';
+import Butter from '../img/Butter.jpg';
+import dip from '../img/dip.jpg';
+import biryani from '../img/Biryani.jpg';
+import hochzeiten from '../img/Hochzeiten.jpg';
+import firmenfeier from '../img/Firmenfeier.jpg';
+import Catering from '../img/Catering.jpg';
+import Vorspeisen from '../img/Vorspeisen.jpg';
+import aboutImage from '../img/Ambiente.jpg';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+import sitarImage from '../img/Butter.jpg';
+import chefImage from '../img/Catering.jpg';
+import mittagImage from '../img/Mittagstisch.jpg';
+import lunchImage from '../img/Drinks.jpg';
+import EventImage from '../img/Events2.jpg';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
-
-
-import { motion, useScroll, useTransform } from "framer-motion";
-
-let image1 = require("../dessert.jpg");
-let image2 = require("../drinks.jpg");
-let image3 = require("../Home.jpg");
-let image4 = require("../pizza.jpg");
-let image5 = require("../shrimps.jpg");
-let image6 = require("../aperol.jpg");
-
-
-
-
-const ParallaxImage = ({ src, speed, width, margin }) => {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, speed * 1.5]);
-
-  return <motion.img ref={ref} src={src} className="img-fluid" style={{ width: width, height: "auto", y, margin: margin }} />;
-};
 
 const HeroSection = () => {
+    const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState("vorspeisen");
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+  AOS.init({ duration: 800, once: true });
+  }, []);
+
+    useEffect(() => {
+    fetch("http://localhost:8080/products-data")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Fehler beim Abrufen der Daten");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setProducts(data);
+        const uniqueCategories = [...new Set(data.map(item => item.category))];
+        setCategories(uniqueCategories);
+        if (uniqueCategories.length > 0) {
+          setActiveTab(uniqueCategories[0]);
+        }
+        setLoading(false);
+      })
+      .catch((error) => {
+        setError(error.message);
+        setLoading(false);
+      });
+  }, []);
+
+
   return (
     <>
-      <div className="hero-container">
-
-        <Navbar></Navbar>
+      <style>
+        {`
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
         
-        {/* Hero Content */}
-        {/* Hero Content */}
-<motion.div
-  className="hero-content text-center d-flex flex-column justify-content-center align-items-center px-3"
-  initial={{ opacity: 0, y: 50 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 1 }}
->
-  <motion.h1
-    className="text-white text-uppercase fw-bold hero-title"
-    style={{ fontSize: "clamp(2.5rem, 8vw, 8rem)" }}
-    initial={{ opacity: 0, y: 30 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.3, duration: 1 }}
-  >
-    KRONENBRUNNEN
-  </motion.h1>
+          body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+          }
+        
+          .bg-column {
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+            background: #000000;
+            opacity: 0;
+            transform: translateY(40px);
+            animation: fadeInColumn 1.2s ease-out forwards;
+          }
+        
+          .bg-column:nth-child(1) { animation-delay: 0s; }
+          .bg-column:nth-child(2) { animation-delay: 0.2s; }
+          .bg-column:nth-child(3) { animation-delay: 0.4s; }
+          .bg-column:nth-child(4) { animation-delay: 0.6s; }
+          .bg-column:nth-child(5) { animation-delay: 0.8s; }
+        
+          .bg-column img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+          }
+        
+          .bg-column::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.15);
+            z-index: 1;
+          }
+        
+          .center-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            width: 100%;
+            text-align: center;
+            padding: 0 1rem;
+          }
+        
+          .svg-title {
+          font-family: "Italianno", cursive;
+          font-size: 100px;
+            fill: none;
+            stroke: #ffffff;
+            stroke-width: 4; /* More bold */
+            stroke-dasharray: 1500;
+            stroke-dashoffset: 1500;
+            opacity: 0;
+            animation: draw 6s ease forwards;
+            animation-delay: 1.2s;
+          }
+        
+          .hero-buttons {
+            margin-top: 2.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeInButtons 1s ease forwards;
+            animation-delay: 2s;
+          }
+        
+          .hero-button {
+            background-color: #5e3c2d;
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-decoration: none;
+          }
+        
+          .hero-button:hover {
+            background-color: #44291f;
+          }
+        
+          @keyframes draw {
+            to {
+              stroke-dashoffset: 0;
+              opacity: 1;
+            }
+          }
+        
+          @keyframes fadeInColumn {
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        
+          @keyframes fadeInColumn {
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        
+          @keyframes fadeInButtons {
+            to {
+              opacity: 1;
+            }
+          }
+        
+          @media (min-width: 768px) {
+            .svg-title {
+              font-size: 130px;
+            }
+        
+            .hero-button {
+              font-size: 1rem;
+              padding: 1.2rem 2.5rem;
+            }
+          }
+            @media (max-width: 767px) {
+          .bg-column {
+            height: 20vh; /* Limit each row height on small screens */
+          }
+        }
+        
+        @media (min-width: 768px) {
+          .bg-column {
+            height: 100vh; /* Full height columns on desktop */
+          }
+        }
+        
+        @keyframes fadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(40px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .fade-up {
+          opacity: 0;
+          transform: translateY(40px);
+          transition: all 0.8s ease-out;
+        }
+        
+        .fade-up.show {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        
+        
+        .fade-up-delay-1 { animation-delay: 0.2s; }
+        .fade-up-delay-2 { animation-delay: 0.4s; }
+        .fade-up-delay-3 { animation-delay: 0.6s; }
+        .fade-up-delay-4 { animation-delay: 0.8s; }
+        
+        
+        `}
+    </style>
 
-  <motion.p
-    className="text-white fs-5 fs-md-3 fst-italic"
-    initial={{ opacity: 0, y: 30 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.5, duration: 1 }}
-  >
-    Bar &bull; Restaurant &bull; Pizzeria
-  </motion.p>
+    <Navbar />
 
-  <motion.div
-    className="hero-buttons me-3"
-    initial={{ opacity: 0, y: 30 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.7, duration: 1 }}
-  >
-    <a href="/order" className="btn order-btn me-3">Order Online</a>
-    <a href="#contact" className="btn order-btn">Reservations</a>
-  </motion.div>
-</motion.div>
-      </div>
-      
-      {/* Scrolling Bar (Outside Hero Container) */}
-      <div className="container-fluid py-2" style={{ backgroundColor: "#4E342E" }}>
-        <marquee className="text-white fw-bold">
-          Exclusive Offers &nbsp; | &nbsp; Happy Hour Specials &nbsp; | &nbsp; Musik &nbsp; | &nbsp; Book Your Table Now | &nbsp; Holzofenpizza | &nbsp; Italienische Pasta | &nbsp; Hausgemachte Desserts | &nbsp; Frische Zutaten | &nbsp; Jetzt Tisch reservieren | &nbsp; Familienfreundlich | &nbsp; Lieferung & Abholung
-        </marquee>
-      </div>
+    {/* Hero */}
+    <section className="position-relative w-100 vh-100 overflow-hidden">
+        {/* 5 Bildspalten */}
+        <div className="d-flex flex-column flex-md-row position-absolute top-0 start-0 w-100 h-100">
+          <div className="bg-column col-md"> <img src={drinksImg} alt="Spalte 1" /> </div>
+          <div className="bg-column col-md"> <img src={dip} alt="Spalte 2" /> </div>
+          <div className="bg-column col-md"> <img src={Vorspeisen} alt="Spalte 3" /> </div>
+          <div className="bg-column col-md"> <img src={Catering} alt="Spalte 4" /> </div>
+          <div className="bg-column col-md"> <img src={Butter} alt="Spalte 5" /> </div>
+        </div>
 
-      {/* About Section */}
-      <section className="container py-5 mt-5" id="about">
-        <div className="row align-items-center">
-          <div className="col-12 col-lg-6">
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
+
+
+        {/* Zentrum Inhalt */}
+        <div className="center-content">
+          <svg width="100%" height="180px" viewBox="0 0 800 180" xmlns="http://www.w3.org/2000/svg">
+            <text
+              x="50%"
+              y="50%"
+              textAnchor="middle"
+              dominantBaseline="central"
+              dy="10"
+              className="svg-title"
             >
-              <h2 className="fw-bold text-dark mb-4"
-                  style={{ fontSize: "clamp(2.5rem, 6vw, 6rem)", fontFamily: "Times New Roman, serif" }}>
-                ÜBER UNS
-              </h2>
-              <p className="text-muted fs-6 fs-md-5 text-start">
-                Willkommen bei Kronenbrunnen – Ihrer Adresse für traditionelle Küche mit moderner Note.
-                Unsere Leidenschaft für Qualität und Gastfreundschaft spiegelt sich in jedem Gericht wider.
-                Wir verbinden familiäre Atmosphäre mit kulinarischer Vielfalt: Pizza aus dem Holzofen, hausgemachte Desserts
-                und italienische Klassiker erwarten Sie. Erleben Sie Genuss mit Herz.
+              Main Curry House
+            </text>
+          </svg>
+          {/* Buttons */}
+          <div className="hero-buttons">
+            <a href="#contact" className="hero-button">Tisch reservieren</a>
+            <a href="/order" className="hero-button">Online bestellen</a>
+          </div>
+        </div>
+    </section>
+
+    {/* Unsere Spezialität */}
+    <section className="py-5" style={{ backgroundColor: "#FDF8F3" }}>
+      <div className="container px-4">
+        <h2 className="text-center fw-bold mb-5" style={{ fontFamily: "Playfair Display", fontSize: "2rem" }}>
+          Unsere Spezialitäten
+        </h2>
+        <div className="row g-4">
+          {/* Dish 1 */}
+          <div className="col-12 col-md-4" data-aos="fade-up">
+            <div className="bg-white rounded shadow-sm h-100">
+              <div className="d-flex align-items-center justify-content-center" style={{ height: "12rem", backgroundColor: "#A1887F" }}>
+                <img src={Butter} alt="Butter Chicken" className="img-fluid h-100 w-100 object-fit-cover" />
+              </div>
+              <div className="p-4">
+                <h3 className="fw-bold mb-2" style={{ fontFamily: "Playfair Display", fontSize: "1.25rem" }}>Butter Chicken</h3>
+                <p className="text-muted mb-3" style={{ color: "#6D4C41" }}>
+                  Zartes Hühnchen in einer cremigen Tomaten-Butter-Sauce mit aromatischen Gewürzen.
+                </p>
+                <p className="fw-bold" style={{ color: "#5D4037" }}>€16.90</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Dish 2 */}
+          <div className="col-12 col-md-4" data-aos="fade-up">
+            <div className="bg-white rounded shadow-sm h-100">
+              <div className="d-flex align-items-center justify-content-center" style={{ height: "12rem", backgroundColor: "#A1887F" }}>
+                <img src={Vorspeisen} alt="Palak Paneer" className="img-fluid h-100 w-100 object-fit-cover" />
+              </div>
+              <div className="p-4">
+                <h3 className="fw-bold mb-2" style={{ fontFamily: "Playfair Display", fontSize: "1.25rem" }}>Vorspeisenplatte</h3>
+                <p className="text-muted mb-3" style={{ color: "#6D4C41" }}>
+                  Eine Auswahl unserer besten Vorspeisen: Samosas, Pakoras und Papadam.
+                </p>
+                <p className="fw-bold" style={{ color: "#5D4037" }}>€13.90</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Dish 3 */}
+          <div className="col-12 col-md-4 " data-aos="fade-up" >
+            <div className="bg-white rounded shadow-sm h-100">
+              <div className="d-flex align-items-center justify-content-center" style={{ height: "12rem", backgroundColor: "#A1887F" }}>
+                <img src={biryani} alt="Biryani" className="img-fluid h-100 w-100 object-fit-cover" />
+              </div>
+              <div className="p-4">
+                <h3 className="fw-bold mb-2" style={{ fontFamily: "Playfair Display", fontSize: "1.25rem" }}>Biryani</h3>
+                <p className="text-muted mb-3" style={{ color: "#6D4C41" }}>
+                  Aromatischer Basmatireis mit Safran, Gewürzen und Ihrer Wahl von Huhn, Lamm oder Gemüse.
+                </p>
+                <p className="fw-bold" style={{ color: "#5D4037" }}>€17.90</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+          {/* Speisekarte */}
+      <section className="py-5" style={{ backgroundColor: "#EFEBE9" }} id="menu">
+        <div className="container px-4">
+          <h2 className="text-center fw-bold mb-5" style={{ fontFamily: "Oswald", fontSize: "3rem" }}>
+            Unsere Lieferkarte
+          </h2>
+
+          {loading && <p>Lade Daten...</p>}
+          {error && <p style={{ color: "red" }}>{error}</p>}
+
+          {!loading && !error && (
+            <>
+              <div className="d-flex flex-wrap justify-content-center gap-2 mb-4">
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveTab(cat)}
+                    className={`btn rounded-pill px-4 py-2 fw-medium ${activeTab === cat ? 'text-white bg-brown' : 'text-dark bg-light'}`}
+                    style={{ backgroundColor: activeTab === cat ? '#8D6E63' : '#D7CCC8' }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
+              <div className="row g-4">
+                {products.filter(item => item.category === activeTab).map((item, index) => (
+                  <div className="col-12 col-md-6" key={index}>
+                    <div className="bg-white rounded p-4 shadow-sm h-100">
+                      <div className="d-flex justify-content-between">
+                        <div>
+                          <h5 className="fw-bold mb-1">{item.name}</h5>
+                          <p className="text-muted mb-0" style={{ color: "#6D4C41" }}>{item.description}</p>
+                        </div>
+                        <span className="fw-bold" style={{ color: "#5D4037" }}>€{item.unitPrice.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+
+
+     {/* About Section */}
+      <section id="about" className="py-5 text-white" style={{ backgroundColor: "#8D6E63" }}>
+        <div className="container px-4">
+          <div className="row align-items-center">
+            <div className="col-md-6 mb-4 mb-md-0" data-aos="zoom-in-right">
+              <div className="rounded overflow-hidden shadow" style={{ transform: "rotate(-2deg)" }}>
+                <img src={aboutImage} alt="Restaurant Innenraum" className="img-fluid w-100" />
+              </div>
+            </div>
+            <div className="col-md-6" data-aos="fade-left" data-aos-delay="200">
+              <h2 className="fw-bold mb-4" style={{ fontFamily: "Oswald", fontSize: "2rem" }}>Über Main Curry House</h2>
+              <p className="mb-3">
+                Willkommen im <strong>Main Curry House</strong> – Ihrem indischen Restaurant direkt am Mainufer in Frankfurt. Seit über 20 Jahren verwöhnen wir unsere Gäste mit authentischem indischen Essen, inspiriert von traditionellen Rezepten aus ganz Indien.
+                Ob romantisches Abendessen, Familienbesuch oder exklusives <strong>Catering</strong> für <strong>Hochzeiten</strong>, <strong>Feiern</strong> und Firmenevents – wir bieten Ihnen ein unvergessliches Geschmackserlebnis mitten in Frankfurt.
               </p>
-            </motion.div>
+              <p className="mb-4">
+                Unser familiengeführtes Restaurant steht für Qualität, Frische und Leidenschaft. Wir verwenden nur frische Zutaten, hochwertige Gewürze und bereiten jedes Gericht mit Hingabe zu. Feiern Sie mit uns besondere Momente und genießen Sie die Vielfalt der indischen Küche – ob im Restaurant oder als Catering bei Ihrer Veranstaltung.
+              </p>
+              <div className="d-flex flex-wrap gap-2">
+                <span className="badge rounded-pill py-2 px-3" style={{ backgroundColor: "#F9C784", color: "#5D4037" }}>Catering in Frankfurt</span>
+                <span className="badge rounded-pill py-2 px-3" style={{ backgroundColor: "#F9C784", color: "#5D4037" }}>Feiern & Events</span>
+                <span className="badge rounded-pill py-2 px-3" style={{ backgroundColor: "#F9C784", color: "#5D4037" }}>Indische Spezialitäten</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Menu Section */}
-      <section className="container-fluid d-flex align-items-center" style={{ backgroundColor: "#3E2723" }}>
-        <div className="row w-200 align-items-center" style={{ minHeight: "740px" }}>
-          
-          {/* Left Image Section (kann mit Background oder Bild ergänzt werden) */}
-          <div className="about-img col-12 col-lg-6" style={{ minHeight: "960px", minWidth: "320px" }}>
-            {/* Optional: Background-Image hier einfügen */}
-          </div>
-      
-          {/* Right Text Section */}
-          <div className="col-12 col-lg-6 d-flex flex-column justify-content-center align-items-start px-4 px-md-5 py-5">
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="fw-bold text-white mb-4"
-                  style={{ fontSize: "clamp(2.5rem, 6vw, 6rem)", fontFamily: "Times New Roman, serif" }}>
-                UNSERE KARTE
-              </h2>
-      
-              <p className="text-white fs-6 fs-md-5 mb-4" style={{ maxWidth: "600px" }}>
-                Entdecken Sie unsere Vielfalt: Von klassischen Pizzen aus dem Steinofen bis zu frischen Pasta-Gerichten
-                und hausgemachten Desserts – hier ist für jeden Geschmack etwas dabei. Lassen Sie sich inspirieren.
-              </p>
-      
-              <a href="#menu" className="btn btn-outline-light px-4 py-2 fw-bold">
-                ZUR SPEISEKARTE
-              </a>
-            </motion.div>
-          </div>
-        </div>
-      </section> 
-
-{/* Quote Section with More Spacing */}
-<section
-  className="container py-7 text-center position-relative d-flex flex-column justify-content-center align-items-center"
-  id="quote-section"
-  style={{ minHeight: "1500px", position: "relative" }}
->
-  <div className="parallax-wrapper d-flex justify-content-between align-items-center w-100" style={{ marginBottom: "200px" }}>
-    <ParallaxImage src={image6} speed={150} width="180px" margin="0 20px" />
-    <ParallaxImage src={image2} speed={90} width="240px" margin="0 130px" />
-    <ParallaxImage src={image1} speed={150} width="210px" margin="0 120px" />
-  </div>
-
-  <motion.div
-    initial={{ y: 50, opacity: 0 }}
-    animate={{ y: 0, opacity: 1 }}
-    transition={{ duration: 1 }}
-    className="mt-5"
-  >
-    <h2
-      className="fw-bold text-dark"
-      style={{
-        fontSize: "clamp(2.5rem, 8vw, 8rem)",
-        fontFamily: "Playfair Display, serif",
-        fontStyle: "italic",
-        padding: "0 1rem",
-      }}
-    >
-    "Der perfekte Ort für jeden Anlass"
+      <section className="py-5" style={{ backgroundColor: "#FFF9F0" }}>
+  <div className="container px-4">
+    <h2 className="text-center fw-bold mb-5" style={{ fontFamily: "Playfair Display", fontSize: "2rem", color: "#5D4037" }}>
+      Events & Angebote
     </h2>
 
-  </motion.div>
+    <div className="row g-4 mb-4">
+      {/* Live Sitar Musik */}
+      <div className="col-md-6">
+        <div className="bg-white rounded shadow-sm h-100 overflow-hidden" style={{ borderTop: "6px solid #A1887F" }}>
+          <img src={hochzeiten} alt="Sitar Musik" style={{ width: "100%", height: "320px", objectFit: "cover" , objectPosition: "center bottom" }} />
+          <div className="p-4">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h5 className="fw-bold mb-0">Hochzeiten und Geburtstage</h5>
+              <span className="badge bg-warning text-dark">Feiern</span>
+            </div>
+            <p className="text-muted mb-2">
+              Feiern Sie Ihre besonderen Anlässe in unserem stilvollen Ambiente mit indischen Köstlichkeiten und Musik.
+            </p>
+          </div>
+        </div>
+      </div>
 
-  <div className="parallax-wrapper d-flex justify-content-between align-items-center w-100 mt-5" style={{ marginTop: "200px" }}>
-    <ParallaxImage src={image4} speed={-30} width="220px" margin="0 80px" />
-    <ParallaxImage src={image5} speed={-120} width="260px" margin="0 120px" />
-    <ParallaxImage src={image3} speed={-200} width="300px" margin="0 80px" />
+      {/* Kochkurs */}
+      <div className="col-md-6">
+        <div className="bg-white rounded shadow-sm h-100 overflow-hidden" style={{ borderTop: "6px solid #A1887F" }}>
+          <img src={firmenfeier} alt="Chefkoch" style={{ width: "100%", height: "320px", objectFit: "cover" }} />
+          <div className="p-4">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h5 className="fw-bold mb-0">Firmenfeiern</h5>
+              <span className="badge bg-warning text-dark">Firmen</span>
+            </div>
+            <p className="text-muted mb-2">
+              Bieten Sie Ihren Mitarbeitern ein unvergessliches Erlebnis mit indischem Essen und Live-Musik in unserem Restaurant.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <div className="row g-4 mb-4">
+      {/* Live Sitar Musik */}
+      <div className="col-md-6">
+        <div className="bg-white rounded shadow-sm h-100 overflow-hidden" style={{ borderTop: "6px solid #A1887F" }}>
+          <img src={EventImage} alt="Sitar Musik" style={{ width: "100%", height: "320px", objectFit: "cover"}} />
+          <div className="p-4">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h5 className="fw-bold mb-0">Events</h5>
+              <span className="badge bg-warning text-dark">Speziel</span>
+            </div>
+            <p className="text-muted mb-2">
+              Genießen Sie unsere Events mit Live-Musik und besonderen Angeboten.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Kochkurs */}
+      <div className="col-md-6">
+        <div className="bg-white rounded shadow-sm h-100 overflow-hidden" style={{ borderTop: "6px solid #A1887F" }}>
+          <img src={mittagImage} alt="Chefkoch" style={{ width: "100%", height: "320px", objectFit: "cover" }} />
+          <div className="p-4">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h5 className="fw-bold mb-0">Mittagtisch</h5>
+              <span className="badge bg-warning text-dark">Täglich</span>
+            </div>
+            <p className="text-muted mb-2">
+              Genießen Sie unser täglich wechselndes Mittagsmenü mit indischen Spezialitäten zu einem günstigen Preis.
+            </p>
+            <p className="fw-bold mb-0" style={{ color: "#5D4037" }}>
+              Montag bis Freitag: 11:30 - 14:30 Uhr
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
 
-      
-        {/* Dining Options Section for Italian Restaurant with Fade-in Animation */}
-        <section
-          className="container-fluid d-flex align-items-center position-relative"
-          style={{ backgroundColor: "#2D1B14", padding: "6rem 0" }}
-        >
-          <div
-            className="row w-100 d-flex align-items-center position-relative"
-            style={{ minHeight: "700px" }}
-          >
-            {/* Text Column */}
-            <motion.div
-              className="col-lg-6 text-white text-center d-flex flex-column justify-content-center align-items-center"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
-              viewport={{ once: true }}
-            >
-              <h2
-                className="fw-bold text-white dining-text"
-              >
-                DINING OPTIONS
-              </h2>
-              <p className="text-white fs-5 w-75">
-                Experience the warmth of Italy in every bite. Whether you’re joining us
-                for a cozy dinner or celebrating with family and friends, our traditional
-                Italian dishes and rustic ambiance make every moment unforgettable.
-              </p>
-              <a href="#order" className="btn btn-outline-light px-4 py-2 mt-3">
-                ORDER ONLINE
-              </a>
-            </motion.div>
-        
-            {/* Image Column */}
-            <motion.div
-              className="col-lg-6 position-relative d-flex justify-content-center align-items-center"
-              style={{ height: "500px" }}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: 0.4, duration: 1 }}
-              viewport={{ once: true }}
-            >
-              <img
-                src={image1}
-                alt="Dining Video"
-                className="img-fluid position-absolute dining-main"
-              />
-              <img
-                src={image2}
-                alt="Dining Table"
-                className="img-fluid position-absolute dining-top-left"
-              />
-              <img
-                src={image3}
-                alt="Chef Cooking"
-                className="img-fluid position-absolute dining-bottom-right"
-              />
-            </motion.div>
-          </div>
-        </section>
+{/* Google Bewertungen Section */}
+<section id="google-reviews" className="py-5" style={{ backgroundColor: "#FBE9E7" }}>
+  <div className="container px-4">
+    <h2 className="text-center fw-bold mb-4" style={{ fontFamily: "Oswald", fontSize: "2.5rem", color: "#5D4037" }}>
+      Das sagen unsere Gäste
+    </h2>
+    <p className="text-center mb-5" style={{ color: "#6D4C41", fontSize: "1.1rem" }}>
+      Unsere Gäste lieben das Main Curry House – überzeugen Sie sich selbst von den Bewertungen auf Google!
+    </p>
 
-        {/* New Multi-Image Carousel Section */}
-        <section className="container-fluid d-flex align-items-center position-relative" style={{ padding: "4rem 0" }}>
-        <div className="row w-100 d-flex align-items-center justify-content-center">
-          <div className="col-12 d-flex justify-content-center align-items-center">
-            <Carousel className="w-100" indicators={false} interval={3000} wrap={true}>
-              <Carousel.Item>
-                <div className="d-flex justify-content-center">
-                  <img src={image1} alt="Slide 1" className="img-fluid-carousel" style={{ width: "20%", height: "400px", objectFit: "cover", margin: "0 10px" }} />
-                  <img src={image2} alt="Slide 2" className="img-fluid-carousel" style={{ width: "20%", height: "400px", objectFit: "cover", margin: "0 10px" }} />
-                  <img src={image3} alt="Slide 3" className="img-fluid-carousel" style={{ width: "20%", height: "400px", objectFit: "cover", margin: "0 10px" }} />
-                  <img src={image3} alt="Slide 3" className="img-fluid-carousel" style={{ width: "20%", height: "400px", objectFit: "cover", margin: "0 10px" }} />
-                </div>
-              </Carousel.Item>
-              <Carousel.Item>
-                <div className="d-flex justify-content-center">
-                  <img src={image4} alt="Slide 4" className="img-fluid-carousel" style={{ width: "20%", height: "400px", objectFit: "cover", margin: "0 10px" }} />
-                  <img src={image5} alt="Slide 5" className="img-fluid-carousel" style={{ width: "20%", height: "400px", objectFit: "cover", margin: "0 10px" }} />
-                  <img src={image6} alt="Slide 6" className="img-fluid-carousel" style={{ width: "20%", height: "400px", objectFit: "cover", margin: "0 10px" }} />
-                  <img src={image6} alt="Slide 6" className="img-fluid-carousel" style={{ width: "20%", height: "400px", objectFit: "cover", margin: "0 10px" }} />
-                </div>
-              </Carousel.Item>
-            </Carousel>
+    {/* Widget Embed (Featurable) */}
+    <div className="row justify-content-center">
+      <div className="col-12 col-lg-10">
+          {/* Call-to-action button */}
+          <div className="container my-5">
+            <div id="featurable-b3653877-e8d9-47b4-81f7-ec1b4d0bd83c" data-featurable-async ></div>
           </div>
-        </div>
-      </section>
+      </div>
+    </div>
 
-        {/* Reservation Section */}
-        <section id="contact" className="container-fluid text-center py-5 mb-2 " style={{ backgroundColor: "#3E2723", color: "white" , borderRadius: "25px"}}>
-        <h2 className="fw-bold" style={{ fontSize: "3rem" }}>Make a Reservation</h2>
-        <p className="fs-5">Reserve a table in advance to enjoy a seamless dining experience.</p>
-        {/* Google Maps Embed */}
-        <div className="mt-5">
-          <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5113.980112072956!2d9.10959117718145!3d50.142617871535066!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47bd3b5bc9fa32e1%3A0x4514f6d6d574684!2sRistaurante%20Kronenbrunnen!5e0!3m2!1sde!2sde!4v1740419759451!5m2!1sde!2sde" 
-            width="100%" 
-            height="450" 
-            style={{ border: "0", borderRadius: "15px" }} 
-            allowFullScreen="" 
-            loading="lazy" 
-            referrerPolicy="no-referrer-when-downgrade">
-          </iframe>
-        </div>
-        <form className="row g-3 justify-content-center mt-2">
-        <div className="col-md-3">
-            <input type="text" className="form-control" placeholder="Full Name" required style={{ padding: "12px", borderRadius: "10px", border: "none", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }} />
-          </div>
-          <div className="col-md-3">
-            <input type="email" className="form-control" placeholder="Email" required style={{ padding: "12px", borderRadius: "10px", border: "none", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }} />
-          </div>
-          <div className="col-md-3">
-            <input type="text" className="form-control" placeholder="Phone Number" required style={{ padding: "12px", borderRadius: "10px", border: "none", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }} />
-          </div>
-          <div className="col-md-3">
-            <input type="date" className="form-control" required style={{ padding: "12px", borderRadius: "10px", border: "none", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }} />
-          </div>
-          <div className="col-md-3">
-            <input type="time" className="form-control" required style={{ padding: "12px", borderRadius: "10px", border: "none", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }} />
-          </div>
-          <div className="col-md-3">
-            <input type="number" className="form-control" placeholder="Guests" min="1" required style={{ padding: "12px", borderRadius: "10px", border: "none", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }} />
-          </div>
-          <div className="col-12 mt-3">
-          <button type="submit" className="btn btn-light px-5 py-3 fw-bold" 
-            style={{ 
-                borderRadius: "50px", 
-                backgroundColor: "#f8d7da", 
-                border: "none", 
-                fontSize: "1.2rem", 
-                transition: "all 0.3s ease",
-                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = "#e57373"}
-            onMouseOut={(e) => e.target.style.backgroundColor = "#f8d7da"}
-            >
-              Reserve Now
-            </button>
+
+  </div>
+</section>
+
+  {/* Kontakt Section */}
+      <section id="contact" className="py-5" style={{ backgroundColor: "#EFEBE9" }}>
+        <div className="container px-4">
+          <h2 className="text-center fw-bold mb-4" style={{ fontFamily: "Oswald", fontSize: "2.5rem", color: "#5D4037" }}>
+            Kontakt
+          </h2>
+          <p className="text-center mb-5" style={{ color: "#6D4C41", fontSize: "1.1rem" }}>
+            Haben Sie Fragen, möchten Sie reservieren oder ein Event planen? Kontaktieren Sie uns – wir freuen uns auf Ihre Nachricht!
+          </p>
+
+          <div className="row">
+            {/* Kontaktformular */}
+            <div className="col-md-6 mb-4">
+              <form>
+                <div className="mb-3">
+                  <label htmlFor="name" className="form-label">Name</label>
+                  <input type="text" className="form-control" id="name" placeholder="Ihr Name" />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="email" className="form-label">E-Mail</label>
+                  <input type="email" className="form-control" id="email" placeholder="Ihre E-Mail-Adresse" />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="message" className="form-label">Nachricht</label>
+                  <textarea className="form-control" id="message" rows="4" placeholder="Ihre Nachricht"></textarea>
+                </div>
+                <button type="submit" className="btn btn-dark px-4 py-2 rounded-pill">Absenden</button>
+              </form>
             </div>
-        </form>
+
+            {/* Kontaktinformationen */}
+            <div className="col-md-6 mb-4">
+              <div className="bg-white rounded shadow-sm p-4 h-100">
+                <h5 className="fw-bold mb-3" style={{ color: "#5D4037" }}>Main Curry House</h5>
+                <p className="mb-2"><strong>Adresse:</strong><br />Mainwasenweg 32, 60599 Frankfurt am Main</p>
+                <p className="mb-2"><strong>Telefon:</strong><br /><a href="tel: 069651234">069 651234</a></p>
+                <p className="mb-2"><strong>E-Mail:</strong><br /><a href="mailto:info@maincurryhouse.de">info@maincurryhouse.de</a></p>
+                <p className="mb-0"><strong>Öffnungszeiten:</strong><br />Mo – Do: 11:30 – 14:30 Uhr <br />Mo – Do: 17:00 – 22:30 Uhr <br />Fr – So: 11:30 – 22:30 Uhr</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Google Maps Karte */}
+          <div className="row mt-4">
+            <div className="col-12">
+              <div className="ratio ratio-16x9 rounded shadow-sm">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2558.990237463745!2d8.716756!3d50.105189700000004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47bd0f454331eca7%3A0x536a3a60a588e028!2sMain%20Curry%20House!5e0!3m2!1sen!2sde!4v1757859980160!5m2!1sen!2sde"
+                  width="100%"
+                  height="450"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Main Curry House Standort"
+                ></iframe>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <Footer></Footer>
+
+<Footer />
+
+
 
     </>
   );
