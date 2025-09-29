@@ -15,14 +15,14 @@ spring:
             allowCredentials: true  # Allow credentials
   data:
     mongodb:
-      uri: mongodb+srv://doadmin:2658kXKF7GtD309M@db-mongodb-fra1-68366-638f76d0.mongo.ondigitalocean.com/MainCurry?tls=true&authSource=admin
+      uri: ${MONGODB_URI}
     
 
   mail:
-    host: mail.privateemail.com
-    port: 587
-    username: info@maincurryhouse.com
-    password: curry123
+    host: ${SMTP_HOST:mail.privateemail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
     protocol: smtp
     properties:
       mail:
@@ -34,4 +34,4 @@ spring:
   
 
 stripe:
-  apiKey: sk_test_51RJcIvIr86kt6GzJMmoLL6Rl7MdyawHwVRYox5hQ2jQaC5iqnOesUAJG9mEMGCTBMlDHtCQjp3JlOIQjnvgUXfw200VIMJGl9B
+  apiKey: ${STRIPE_API_KEY}
