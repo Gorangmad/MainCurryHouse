@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
+import { getApiUrl } from '../config/api';
+
 import drinksImg from '../img/Drinks.jpg';
 import Butter from '../img/Butter.jpg';
 import dip from '../img/dip.jpg';
@@ -30,7 +32,7 @@ const HeroSection = () => {
   }, []);
 
     useEffect(() => {
-    fetch("http://localhost:8080/products-data")
+    fetch(getApiUrl('/products-data'))
       .then((response) => {
         if (!response.ok) {
           throw new Error("Fehler beim Abrufen der Daten");

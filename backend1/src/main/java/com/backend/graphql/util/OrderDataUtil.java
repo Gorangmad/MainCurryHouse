@@ -18,7 +18,7 @@ public class OrderDataUtil {
     private static final Logger logger = LoggerFactory.getLogger(OrderDataUtil.class);
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String DATA_SERVICE_URL = "http://localhost:8080/orders-data";
+    private static final String DATA_SERVICE_URL = System.getenv().getOrDefault("API_URL", "http://localhost:8080") + "/orders-data";
 
     // Load all orders from the data service
     public List<Order> loadOrders() throws IOException {

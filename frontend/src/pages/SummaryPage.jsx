@@ -1,5 +1,7 @@
 // SummaryPage.jsx
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from 'react';
+import { getApiUrl } from '../config/api';
+
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { FaShoppingCart } from "react-icons/fa";
 
@@ -61,7 +63,7 @@ const SummaryPage = ({ subtotal: subtotalProp = 0, deliveryCost = 0, totalAmount
         deliveryCost: deliveryCost,
         paymentMethod: paymentMethod
       };
-      const response = await fetch("http://localhost:8080/graphql", {
+      const response = await fetch(getApiUrl('/graphql'), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

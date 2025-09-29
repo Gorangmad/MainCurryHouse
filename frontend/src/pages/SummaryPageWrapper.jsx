@@ -1,6 +1,7 @@
 // SummaryPageWrapper.jsx
 import React, { useEffect, useState } from "react";
 import { Elements } from "@stripe/react-stripe-js";
+import { getApiUrl } from '../config/api';
 import { stripePromise } from "../App";
 import SummaryPage from "./SummaryPage";
 
@@ -88,7 +89,7 @@ export default function SummaryPageWrapper() {
       const finalAmount = round2(sub + delivery);
       setTotalAmount(finalAmount);
 
-      const response = await fetch("http://localhost:8080/graphql", {
+      const response = await fetch(getApiUrl('/graphql'), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
