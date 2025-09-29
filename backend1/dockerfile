@@ -1,13 +1,24 @@
-# Use official OpenJDK image
-FROM openjdk:17-jdk-slim
+# ---- Build stage ----
+FROM maven:3.9.9-eclipse-temurin-17 AS build
+WORKDIR /app
 
-# Set working directory
-WORKDIR /backend1
+# copy pom.xml and download dependencies first (better caching)
+COPY pom.xml .
+RUN mvn -q -DskipTests dependency:go-offline
 
-COPY /target/backend-0.0.1-SNAPSHOT.jar app.jar
+# copy source code and build
+COPY src ./src
+RUN mvn -q -DskipTests package
 
-# Expose the application port
+# ---- Runtime stage ----
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+
+# copy the built jar from the build stage
+COPY --from=build /app/target/*.jar app.jar
+
+# expose port (DigitalOcean injects $PORT automatically)
 EXPOSE 8080
 
-# Run the application
+# run the app
 CMD ["java", "-jar", "app.jar"]
