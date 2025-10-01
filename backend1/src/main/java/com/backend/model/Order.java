@@ -18,6 +18,7 @@ public class Order {
     private String notes; // Additional notes about the order
     private double deliveryCost; // Cost of delivery for the order
     private String paymentMethod; // "CASH" oder "CARD"
+    private OrderType orderType; // "DELIVERY" oder "PICKUP"
 
 public String getPaymentMethod() {
     return paymentMethod;
@@ -27,7 +28,13 @@ public void setPaymentMethod(String paymentMethod) {
     this.paymentMethod = paymentMethod;
 }
 
+public OrderType getOrderType() {
+    return orderType;
+}
 
+public void setOrderType(OrderType orderType) {
+    this.orderType = orderType;
+}
 
     // Default constructor
     public Order() {
@@ -36,7 +43,7 @@ public void setPaymentMethod(String paymentMethod) {
     // Parameterized constructor
     public Order(String id, String customerUsername, List<OrderProduct> products, float totalAmount,
                  String status, String createdAt, String companyName, String email,
-                 String address, String phoneNumber, String notes, Double deliveryCost, String paymentMethod) {
+                 String address, String phoneNumber, String notes, Double deliveryCost, String paymentMethod, OrderType orderType) {
         this.id = id;
         this.customerUsername = customerUsername;
         this.products = products;
@@ -50,6 +57,7 @@ public void setPaymentMethod(String paymentMethod) {
         this.notes = notes;
         this.deliveryCost = deliveryCost;
         this.paymentMethod = paymentMethod;
+        this.orderType = orderType;
     }
 
     // Getter and setter methods

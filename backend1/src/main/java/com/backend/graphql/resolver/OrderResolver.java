@@ -88,7 +88,8 @@ public class OrderResolver {
                 input.getPhoneNumber(),
                 input.getNotes(),
                 input.getDeliveryCost(),
-                input.getPaymentMethod()
+                input.getPaymentMethod(),
+                input.getOrderType()
         );
 
         // Save the order

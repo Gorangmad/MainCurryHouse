@@ -61,7 +61,8 @@ const SummaryPage = ({ subtotal: subtotalProp = 0, deliveryCost = 0, totalAmount
           selectedSize: item.selectedSize || null
         })),
         deliveryCost: deliveryCost,
-        paymentMethod: paymentMethod
+        paymentMethod: paymentMethod,
+        orderType: deliveryCost > 0 ? "DELIVERY" : "PICKUP"
       };
       const response = await fetch(getApiUrl('/graphql'), {
         method: "POST",

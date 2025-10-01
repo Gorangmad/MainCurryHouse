@@ -17,11 +17,8 @@ const OnlineOrdering = () => {
   const [addedToCart, setAddedToCart] = useState({});
 
   const today = new Date().getDay();
-  const now = new Date();
-  const currentHour = now.getHours();
-  const currentMinutes = now.getMinutes();
-
-  // Öffnungszeiten prüfen
+  // Alte Öffnungszeiten-Prüfung (auskommentiert)
+  /*
   const isOpen = (() => {
     const timeInMinutes = currentHour * 60 + currentMinutes;
 
@@ -42,6 +39,10 @@ const OnlineOrdering = () => {
       );
     }
   })();
+  */
+
+  // Neue Version: Immer geöffnet
+  const isOpen = true;
 
   useEffect(() => {
     fetch(getApiUrl('/products-data'))

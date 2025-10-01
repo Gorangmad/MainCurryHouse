@@ -12,6 +12,15 @@ public class OrderInput {
     private List<ProductInput> products; // List of products in the order
     private double deliveryCost; // Cost of delivery for the order
     private String paymentMethod;
+    private OrderType orderType;
+
+    public OrderType getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(OrderType orderType) {
+        this.orderType = orderType;
+    }
 
     public String getPaymentMethod() {
         return paymentMethod;
