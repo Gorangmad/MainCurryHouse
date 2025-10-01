@@ -51,7 +51,7 @@ const SummaryPage = ({ subtotal: subtotalProp = 0, deliveryCost = 0, totalAmount
         companyName: formData.companyName || "",
         email: formData.email || "",
         address: `${formData.address || ''}, ${formData.postcode || ''}`,
-        phoneNumber: formData.phone || "",
+        phoneNumber: formData.phoneNumber || "",
         notes: formData.notes || "",
         products: cart.map(item => ({
           productId: String(item.productId),
