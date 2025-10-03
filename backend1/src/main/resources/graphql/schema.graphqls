@@ -8,6 +8,30 @@ type Mutation {
     createOrder(input: OrderInput!): Order!
     updateOrderStatus(orderId: String!, newStatus: String!): Order
     createPayment(amount: Float!, currency: String!, paymentMethod: PaymentMethodType!, paymentMethodId: String): PaymentResponse!
+    sendContactForm(input: ContactInput!): ContactResponse!
+}
+
+input ContactInput {
+    name: String!
+    email: String!
+    phone: String!
+    requestType: RequestType!
+    date: String
+    time: String
+    guests: Int
+    subject: String
+    message: String
+    captchaToken: String!
+}
+
+type ContactResponse {
+    success: Boolean!
+    message: String
+}
+
+enum RequestType {
+    RESERVATION
+    OTHER
 }
 
 enum PaymentMethodType {

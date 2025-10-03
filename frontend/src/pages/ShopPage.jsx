@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getApiUrl } from '../config/api';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 import drinksImg from '../img/Drinks.jpg';
 import Butter from '../img/Butter.jpg';
@@ -27,9 +28,108 @@ const HeroSection = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("vorspeisen");
   const [categories, setCategories] = useState([]);
+  const [requestType, setRequestType] = useState("");
+  const [formStatus, setFormStatus] = useState({ loading: false, error: null, success: false });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    date: "",
+    time: "",
+    guests: "",
+    subject: "",
+    message: ""
+  });
+  const [captchaValue, setCaptchaValue] = useState(null);
+  
+  const handleCaptchaChange = (value) => {
+    setCaptchaValue(value);
+  };
   useEffect(() => {
-  AOS.init({ duration: 800, once: true });
+    AOS.init({ duration: 800, once: true });
   }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!captchaValue) {
+      setFormStatus({ loading: false, error: "Bitte bestätigen Sie, dass Sie kein Roboter sind.", success: false });
+      return;
+    }
+    
+    setFormStatus({ loading: true, error: null, success: false });
+
+    try {
+      const response = await fetch(getApiUrl('/graphql'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: `
+            mutation SendContactForm($input: ContactInput!) {
+              sendContactForm(input: $input) {
+                success
+                message
+              }
+            }
+          `,
+          variables: {
+            input: {
+              name: formData.name,
+              email: formData.email,
+              phone: formData.phone,
+              requestType: requestType === 'reservation' ? 'RESERVATION' : 'OTHER',
+              date: requestType === 'reservation' ? formData.date : null,
+              time: requestType === 'reservation' ? formData.time : null,
+              guests: requestType === 'reservation' ? parseInt(formData.guests) : null,
+              subject: requestType === 'other' ? formData.subject : null,
+              message: requestType === 'other' ? formData.message : null,
+              captchaToken: captchaValue
+            }
+          }
+        })
+      });
+
+      const result = await response.json();
+      if (result.errors) {
+        const error = result.errors[0];
+        if (error.message.includes('reCAPTCHA')) {
+          setFormStatus({ loading: false, error: 'reCAPTCHA Verifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.', success: false });
+          return;
+        }
+      }
+
+      if (result.errors) {
+        throw new Error(result.errors[0].message);
+      }
+
+      if (result.data.sendContactForm.success) {
+        setFormStatus({ loading: false, error: null, success: true });
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          date: "",
+          time: "",
+          guests: "",
+          subject: "",
+          message: ""
+        });
+        setRequestType("");
+      } else {
+        throw new Error(result.data.sendContactForm.message || 'Ein Fehler ist aufgetreten');
+      }
+    } catch (error) {
+      setFormStatus({ loading: false, error: error.message, success: false });
+    }
+  };
 
     useEffect(() => {
     fetch(getApiUrl('/products-data'))
@@ -518,20 +618,156 @@ const HeroSection = () => {
           <div className="row">
             {/* Kontaktformular */}
             <div className="col-md-6 mb-4">
-              <form>
+              <form onSubmit={handleSubmit}>
+                {formStatus.error && (
+                  <div className="alert alert-danger mb-3">{formStatus.error}</div>
+                )}
+                {formStatus.success && (
+                  <div className="alert alert-success mb-3">Ihre Nachricht wurde erfolgreich gesendet!</div>
+                )}
                 <div className="mb-3">
-                  <label htmlFor="name" className="form-label">Name</label>
-                  <input type="text" className="form-control" id="name" placeholder="Ihr Name" />
+                  <label htmlFor="requestType" className="form-label">Art der Anfrage</label>
+                  <select className="form-select" id="requestType" onChange={(e) => setRequestType(e.target.value)} required>
+                    <option value="">Bitte wählen Sie</option>
+                    <option value="reservation">Tisch reservieren</option>
+                    <option value="other">Anderes Anliegen</option>
+                  </select>
                 </div>
+
                 <div className="mb-3">
-                  <label htmlFor="email" className="form-label">E-Mail</label>
-                  <input type="email" className="form-control" id="email" placeholder="Ihre E-Mail-Adresse" />
+                  <label htmlFor="name" className="form-label">Name*</label>
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    id="name" 
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Ihr Name" 
+                    required 
+                  />
                 </div>
+
                 <div className="mb-3">
-                  <label htmlFor="message" className="form-label">Nachricht</label>
-                  <textarea className="form-control" id="message" rows="4" placeholder="Ihre Nachricht"></textarea>
+                  <label htmlFor="email" className="form-label">E-Mail*</label>
+                  <input 
+                    type="email" 
+                    className="form-control" 
+                    id="email" 
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Ihre E-Mail-Adresse" 
+                    required 
+                  />
                 </div>
-                <button type="submit" className="btn btn-dark px-4 py-2 rounded-pill">Absenden</button>
+
+                <div className="mb-3">
+                  <label htmlFor="phone" className="form-label">Telefonnummer*</label>
+                  <input 
+                    type="tel" 
+                    className="form-control" 
+                    id="phone" 
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="Ihre Telefonnummer" 
+                    required 
+                  />
+                </div>
+
+                {requestType === 'reservation' && (
+                  <>
+                    <div className="mb-3">
+                      <label htmlFor="date" className="form-label">Datum*</label>
+                      <input 
+                        type="date" 
+                        className="form-control" 
+                        id="date" 
+                        name="date"
+                        value={formData.date}
+                        onChange={handleChange}
+                        required 
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label htmlFor="time" className="form-label">Uhrzeit*</label>
+                      <input 
+                        type="time" 
+                        className="form-control" 
+                        id="time" 
+                        name="time"
+                        value={formData.time}
+                        onChange={handleChange}
+                        required 
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label htmlFor="guests" className="form-label">Anzahl der Personen*</label>
+                      <input 
+                        type="number" 
+                        className="form-control" 
+                        id="guests" 
+                        name="guests"
+                        value={formData.guests}
+                        onChange={handleChange}
+                        min="1" 
+                        placeholder="Anzahl der Gäste" 
+                        required 
+                      />
+                    </div>
+                  </>
+                )}
+
+                {requestType === 'other' && (
+                  <>
+                    <div className="mb-3">
+                      <label htmlFor="subject" className="form-label">Betreff*</label>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        id="subject" 
+                        name="subject"
+                        value={formData.subject}
+                        onChange={handleChange}
+                        placeholder="Betreff Ihres Anliegens" 
+                        required 
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label htmlFor="message" className="form-label">Nachricht*</label>
+                      <textarea 
+                        className="form-control" 
+                        id="message" 
+                        name="message"
+                        value={formData.message}
+                        onChange={handleChange}
+                        rows="4" 
+                        placeholder="Ihre Nachricht" 
+                        required
+                      ></textarea>
+                    </div>
+                  </>
+                )}
+
+                <div className="mb-3">
+                  <ReCAPTCHA
+                    sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
+                    onChange={handleCaptchaChange}
+                  />
+                </div>
+
+                <button 
+                  type="submit"
+                  className="btn btn-dark px-4 py-2 rounded-pill"
+                  disabled={formStatus.loading || !captchaValue}
+                >
+                  {formStatus.loading ? 'Wird gesendet...' : 'Absenden'}
+                </button>
+                <p className="mt-2 small text-muted">* Pflichtfelder</p>
               </form>
             </div>
 

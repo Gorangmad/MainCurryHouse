@@ -1,3 +1,7 @@
+google:
+  recaptcha:
+    secret: ${RECAPTCHA_SECRET_KEY}
+
 spring:
   cloud:
     gateway:
@@ -35,3 +39,4 @@ spring:
 
 stripe:
   apiKey: ${STRIPE_API_KEY}
+
