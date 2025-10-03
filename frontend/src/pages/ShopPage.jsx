@@ -755,7 +755,7 @@ const HeroSection = () => {
 
                 <div className="mb-3">
                   <ReCAPTCHA
-                    sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
+                    sitekey="6LcAWd0rAAAAAOdGrYGl8T9uuU-TuOITtNuU-fT1"
                     onChange={handleCaptchaChange}
                   />
                 </div>
