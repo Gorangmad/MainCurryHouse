@@ -22,11 +22,11 @@ const Footer = () => {
           <p className="fw-bold">Öffnungszeiten</p>
           <p>Montag bis Samstag: 16:00-22:00</p>
           <p>Sonntag und Feiertage: 12:00-22:00</p>
-          <p>Dienstag Ruhetag</p>
         </div>
         <div className="col-md-4">
           <p className="fw-bold">Wo sie uns finden?</p>
           <p>Mainwasenweg 32, 60599 Frankfurt am Main</p>
+          <p>01632509353</p>
           <p>069 651234</p>
           <p>info@maincurryhouse.de</p>
         </div>

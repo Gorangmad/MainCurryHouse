@@ -170,22 +170,22 @@ const OnlineOrdering = () => {
                 </li>
                 <li className="nav-item">
                   <a className="nav-link text-white" href="/order" onClick={closeNavOnClick}>
-                    Order Online
+                    Online Bestellen
                   </a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="#reservations" onClick={closeNavOnClick}>
-                    Reservations
+                  <a className="nav-link text-white" href="/#contact" onClick={closeNavOnClick}>
+                    Reservieren
                   </a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="#about" onClick={closeNavOnClick}>
-                    About
+                  <a className="nav-link text-white" href="/#about" onClick={closeNavOnClick}>
+                    Über uns
                   </a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="#contact" onClick={closeNavOnClick}>
-                    Contact
+                  <a className="nav-link text-white" href="/#contact" onClick={closeNavOnClick}>
+                    Kontakt
                   </a>
                 </li>
               </ul>
@@ -199,9 +199,10 @@ const OnlineOrdering = () => {
 
           {/* Right side: Order + Cart */}
           <div className="d-flex align-items-center">
-            <a href="/order" className="btn order-btn me-3" onClick={closeNavOnClick}>
+            <a href="/order" className="btn order-btn me-3 d-none d-lg-inline-flex" onClick={closeNavOnClick}>
               Order Now
             </a>
+
             <FaShoppingBag
               className="text-white fs-4"
               style={{ cursor: "pointer" }}

@@ -124,8 +124,7 @@ const SummaryPage = ({ subtotal: subtotalProp = 0, deliveryCost = 0, totalAmount
   return (
     <div className="container mt-4">
       <div className="p-4 bg-light border rounded mb-4 text-center">
-        <div className="logo-placeholder mb-2"></div>
-        <h2 className="m-0">Dein Firmenname</h2>
+        <h2 className="m-0">Main Curry House</h2>
       </div>
 
       <div className="row">

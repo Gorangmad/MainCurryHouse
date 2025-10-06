@@ -3,67 +3,84 @@ import React from 'react';
 const Datenschutzerklaerung = () => (
   <div>
     <h2>Datenschutzerklärung</h2>
-    <h3>1. Allgemeine Hinweise</h3>
-    <p>Wir verarbeiten Ihre Daten ausschließlich auf Grundlage der gesetzlichen Bestimmungen (DSGVO, TMG).</p>
 
-    <h3>2. Verantwortlicher</h3>
+    <h3>Verantwortliche Stelle</h3>
     <p>
-      Restaurant Pizzeria Kronenbrunnen<br />
-      Inhaberin: Rajdeep Kaur<br />
-      Josefstraße 18, 63579 Freigericht<br />
-      Telefon: 06055–9337531<br />
-      E-Mail: <a href="mailto:gurmanirao@icloud.com">gurmanirao@icloud.com</a>
+      Mein Curry House<br />
+      Inhaber: <strong>Bharat Bhoshan</strong><br />
+      Mainwasenweg 32<br />
+      60599 Frankfurt am Main<br />
+      E-Mail: <a href="mailto:info@meincurryhouse.de">info@meincurryhouse.de</a>
     </p>
 
-    <h3>3. Erhebung und Speicherung personenbezogener Daten</h3>
+    <h3>1. Erhebung personenbezogener Daten</h3>
     <p>
-      Bei Bestellung oder Anfrage erfassen wir Name, Telefonnummer, Adresse und ggf. E-Mail-Adresse.
+      Beim Bestellvorgang werden Name, Adresse, Telefonnummer, E-Mail, Bestellinhalt und Zahlungsinformationen erhoben.
+      Diese Daten sind erforderlich, um Bestellungen auszuführen und abzurechnen.
     </p>
 
-    <h3>4. Speicherung in einer Datenbank</h3>
+    <h3>2. Rechtsgrundlage der Verarbeitung</h3>
     <p>
-      Die Daten werden vorübergehend auf Servern in der EU gespeichert (Digital Ocean).
+      Die Verarbeitung erfolgt nach Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b DSGVO (Erfüllung eines Vertrags) und
+      Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO (berechtigtes Interesse an einem effizienten Betrieb der Webseite).
     </p>
 
-    <h3>5. Cookies</h3>
+    <h3>3. Weitergabe von Daten</h3>
+    <p>Daten werden nur weitergegeben an:</p>
+    <ul>
+      <li>Stripe Payments Europe Ltd. (Irland) zur Abwicklung von Kartenzahlungen,</li>
+      <li>Lieferpersonal (Name, Adresse, Telefonnummer, Bestellinhalt).</li>
+    </ul>
+    <p>Eine weitergehende Übermittlung an Dritte erfolgt nicht.</p>
+
+    <h3>4. Cookies</h3>
     <p>
-      Wir verwenden ausschließlich technisch notwendige Cookies.
+      Unsere Webseite verwendet ausschließlich technisch notwendige Cookies, um den Bestellprozess zu ermöglichen.
+      Es findet kein Tracking und keine Reichweitenanalyse statt (kein Google Analytics, kein Facebook Pixel).
     </p>
 
-    <h3>6. Google Maps</h3>
+    <h3>5. Server-Logs</h3>
     <p>
-      Wir nutzen Google Maps. Anbieter: Google Ireland Ltd.&nbsp;
-      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
-        Datenschutzerklärung von Google
-      </a>
+      Beim Aufruf der Webseite werden automatisch Daten (IP-Adresse, Browsertyp, Uhrzeit, Betriebssystem) protokolliert.
+      Diese Daten dienen ausschließlich der technischen Sicherheit und werden nach 7&nbsp;Tagen gelöscht.
     </p>
 
-    <h3>7. Stripe</h3>
+    <h3>6. Kontaktformular</h3>
     <p>
-      Zahlungsabwicklung erfolgt über Stripe. Anbieter: Stripe Payments Europe, Ltd.&nbsp;
-      <a href="https://stripe.com/de/privacy" target="_blank" rel="noopener noreferrer">
-        Datenschutzerklärung von Stripe
-      </a>
+      Wenn Sie uns über das Kontaktformular kontaktieren, speichern wir die Angaben (Name, E-Mail, Telefonnummer)
+      ausschließlich zur Bearbeitung Ihrer Anfrage.
     </p>
 
-    <h3>8. Ihre Rechte</h3>
+    <h3>7. Speicherdauer</h3>
     <p>
-      Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und Widerspruch.
+      Daten werden gelöscht, sobald sie für die genannten Zwecke nicht mehr erforderlich sind oder gesetzliche
+      Aufbewahrungsfristen ablaufen.
     </p>
 
-    <h3>9. Kontaktformular</h3>
+    <h3>8. Rechte der Betroffenen</h3>
+    <p>Sie haben jederzeit das Recht auf:</p>
+    <ul>
+      <li>Auskunft (Art.&nbsp;15 DSGVO),</li>
+      <li>Berichtigung (Art.&nbsp;16 DSGVO),</li>
+      <li>Löschung (Art.&nbsp;17 DSGVO),</li>
+      <li>Einschränkung der Verarbeitung (Art.&nbsp;18 DSGVO),</li>
+      <li>Datenübertragbarkeit (Art.&nbsp;20 DSGVO),</li>
+      <li>Widerspruch (Art.&nbsp;21 DSGVO).</li>
+    </ul>
     <p>
-      Daten aus dem Kontaktformular werden zur Bearbeitung gespeichert und nicht weitergegeben.
+      Anfragen dazu bitte an: <a href="mailto:info@meincurryhouse.de">info@meincurryhouse.de</a>
     </p>
 
-    <h3>10. Speicherdauer</h3>
+    <h3>9. Datensicherheit</h3>
     <p>
-      Daten werden nur so lange gespeichert, wie gesetzlich erforderlich oder betrieblich notwendig.
+      Wir setzen SSL-Verschlüsselung ein, um die Datenübertragung zu schützen.
     </p>
 
-    <h3>11. SSL-Verschlüsselung</h3>
+    <h3>10. Beschwerderecht</h3>
     <p>
-      Unsere Website verwendet SSL-Verschlüsselung zum Schutz Ihrer Daten.
+      Bei Datenschutzverstößen steht Ihnen ein Beschwerderecht bei der zuständigen Aufsichtsbehörde zu:
+      Der Hessische Beauftragte für Datenschutz und Informationsfreiheit (HBDI), Wiesbaden&nbsp;
+      (<a href="https://datenschutz.hessen.de" target="_blank" rel="noopener noreferrer">datenschutz.hessen.de</a>).
     </p>
   </div>
 );

@@ -22,7 +22,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import SummaryPageWrapper from './pages/SummaryPageWrapper.jsx';
 
 // ✅ Load Stripe with your **public key**
-export const stripePromise = loadStripe("pk_test_51RJcIvIr86kt6GzJcZGJkRkiDaQneWETARimnMVmqPBrV8LXrpI0iGy4h2Cz2pe5pTUbcX6Cx1g4Abzn0F3tmUJV000dYf8o0O");
+export const stripePromise = loadStripe("pk_live_51JlxjKIsIcjwovkaU3gjzwWDZ8MhZG40asakB1sp94gCxoqFEKC2huJOxcmMQOcXnVz2LTMdFgbipsvB3LT2a37M00qfdgkZho");
 
 // PrivateRoute 
 const PrivateRoute = ({ element, token }) => {
