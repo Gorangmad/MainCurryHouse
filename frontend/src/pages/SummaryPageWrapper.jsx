@@ -42,14 +42,11 @@ const findZoneByPostcode = (postcode) => {
   return null;
 };
 
-const pricingFor = (postcode, subtotal) => {
+const pricingFor = (postcode) => {
   const zone = findZoneByPostcode(postcode);
   const min = zone?.min ?? ABS_MIN;
   const fee = zone?.fee ?? STD_DELIVERY;
-
-  // Lieferkosten werden immer berechnet, unabhängig vom Warenkorbwert
-  const delivery = fee;
-
+  const delivery = fee; // Lieferkosten immer berechnet (bei Lieferung)
   return { delivery: round2(delivery), min, zoneLabel: zone?.label ?? "DEFAULT", inZone: !!zone };
 };
 
@@ -66,26 +63,43 @@ export default function SummaryPageWrapper() {
       const data = JSON.parse(localStorage.getItem("checkoutFormData") || "{}");
       const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
+      // robustes Pickup-Flag (unterstützt mehrere mögliche Feldnamen)
+      const isPickup =
+        String(data?.fulfillment || data?.fulfilment || "")
+          .toLowerCase()
+          .includes("pickup") ||
+        String(data?.deliveryMethod || "").toLowerCase() === "pickup" ||
+        Boolean(data?.isPickup);
+
       const sub = savedCart.reduce(
         (sum, item) => sum + (item.price || item.unitPrice || 0) * (item.quantity || 1),
         0
       );
       setSubtotal(sub);
 
-
+      // Mindestbestellwert weiterhin erzwingen (auch bei Abholung) – falls Pickup ohne Mindestwert gewünscht ist, diesen Block für isPickup überspringen.
       if (sub < ABS_MIN) {
         setValidationError(`Der Mindestbestellwert beträgt ${ABS_MIN} Euro.`);
         return;
       }
 
-      const userPostcode = extractPostcode(data.postcode || "");
-      if (!userPostcode) {
-        setValidationError("Bitte geben Sie eine gültige Postleitzahl ein.");
-        return;
-      }
-      const { delivery } = pricingFor(userPostcode, sub);
-      setDeliveryCost(delivery);
+      let delivery = 0;
 
+      if (!isPickup) {
+        // Lieferung: PLZ muss gültig sein und Zone berechnet werden
+        const userPostcode = extractPostcode(data.postcode || "");
+        if (!userPostcode) {
+          setValidationError("Bitte geben Sie eine gültige Postleitzahl ein.");
+          return;
+        }
+        const { delivery: d } = pricingFor(userPostcode);
+        delivery = d;
+      } else {
+        // Abholung: keine PLZ-Prüfung, keine Lieferkosten
+        delivery = 0;
+      }
+
+      setDeliveryCost(delivery);
       const finalAmount = round2(sub + delivery);
       setTotalAmount(finalAmount);
 
@@ -102,6 +116,7 @@ export default function SummaryPageWrapper() {
           `,
         }),
       });
+
       const result = await response.json();
       setClientSecret(result?.data?.createPayment?.clientSecret || "");
     })();
