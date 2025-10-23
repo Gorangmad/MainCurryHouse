@@ -77,26 +77,28 @@ export default function SummaryPageWrapper() {
       );
       setSubtotal(sub);
 
-      // Mindestbestellwert weiterhin erzwingen (auch bei Abholung) – falls Pickup ohne Mindestwert gewünscht ist, diesen Block für isPickup überspringen.
-      if (sub < ABS_MIN) {
-        setValidationError(`Der Mindestbestellwert beträgt ${ABS_MIN} Euro.`);
-        return;
-      }
-
       let delivery = 0;
 
-      if (!isPickup) {
-        // Lieferung: PLZ muss gültig sein und Zone berechnet werden
+      if (isPickup) {
+        // Bei Abholung keine Mindestbestellwert-Prüfung und keine Lieferkosten
+        delivery = 0;
+      } else {
+        // Lieferung: PLZ-Prüfung und zonenbezogene Mindestbestellwerte
         const userPostcode = extractPostcode(data.postcode || "");
         if (!userPostcode) {
           setValidationError("Bitte geben Sie eine gültige Postleitzahl ein.");
           return;
         }
-        const { delivery: d } = pricingFor(userPostcode);
+        const { delivery: d, min, inZone } = pricingFor(userPostcode);
+        if (!inZone) {
+          setValidationError("Leider liefern wir nicht in Ihre Region.");
+          return;
+        }
+        if (sub < min) {
+          setValidationError(`Der Mindestbestellwert für Ihre Region beträgt ${min} Euro.`);
+          return;
+        }
         delivery = d;
-      } else {
-        // Abholung: keine PLZ-Prüfung, keine Lieferkosten
-        delivery = 0;
       }
 
       setDeliveryCost(delivery);
