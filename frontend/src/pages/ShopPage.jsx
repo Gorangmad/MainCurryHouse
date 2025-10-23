@@ -21,13 +21,23 @@ import EventImage from '../img/Events2.jpg';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-
 const HeroSection = () => {
     const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState("vorspeisen");
-  const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [activeTab, setActiveTab] = useState("vorspeisen");
+    const [categories, setCategories] = useState([]);
+    
+    // Adding title and meta description dynamically for better SEO
+    useEffect(() => {
+        document.title = "Main Curry House Frankfurt - Authentische Indische Küche | Restaurant & Catering";
+        const metaDescription = document.querySelector('meta[name="description"]');
+        if (metaDescription) {
+            metaDescription.setAttribute('content', 
+                'Entdecken Sie authentische indische Küche in Frankfurt. Catering Service in Frankfurt, Offenbach, Köln, Wiesbaden und Mainz. Beste Curry Gerichte, Tandoori Spezialitäten und indische Spezialitäten mit Lieferung.'
+            );
+        }
+    }, []);
   const [requestType, setRequestType] = useState("");
   const [formStatus, setFormStatus] = useState({ loading: false, error: null, success: false });
   const [formData, setFormData] = useState({
@@ -500,77 +510,77 @@ const HeroSection = () => {
         </div>
       </section>
 
-      <section className="py-5" style={{ backgroundColor: "#FFF9F0" }}>
+ <section className="py-5" style={{ backgroundColor: "#FFF9F0" }}>
   <div className="container px-4">
     <h2 className="text-center fw-bold mb-5" style={{ fontFamily: "Playfair Display", fontSize: "2rem", color: "#5D4037" }}>
       Events & Angebote
     </h2>
 
     <div className="row g-4 mb-4">
-      {/* Live Sitar Musik */}
+      {/* Hochzeiten */}
       <div className="col-md-6">
         <div className="bg-white rounded shadow-sm h-100 overflow-hidden" style={{ borderTop: "6px solid #A1887F" }}>
-          <img src={hochzeiten} alt="Sitar Musik" style={{ width: "100%", height: "320px", objectFit: "cover" , objectPosition: "center bottom" }} />
+          <img src={hochzeiten} alt="Indisches Hochzeits-Catering Frankfurt" style={{ width: "100%", height: "320px", objectFit: "cover" , objectPosition: "center bottom" }} />
           <div className="p-4">
             <div className="d-flex justify-content-between align-items-center mb-2">
-              <h5 className="fw-bold mb-0">Hochzeiten und Geburtstage</h5>
-              <span className="badge bg-warning text-dark">Feiern</span>
+              <h5 className="fw-bold mb-0">Indische Hochzeiten Frankfurt</h5>
+              <span className="badge bg-warning text-dark">Premium</span>
             </div>
             <p className="text-muted mb-2">
-              Feiern Sie Ihre besonderen Anlässe in unserem stilvollen Ambiente mit indischen Köstlichkeiten und Musik.
+              Authentisches indisches Catering für Ihre Hochzeit in Frankfurt und Umgebung. Erleben Sie traditionelle indische Küche mit modernem Touch - vom eleganten Empfang bis zum festlichen Dinner am Main.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Kochkurs */}
+      {/* Firmenfeiern */}
       <div className="col-md-6">
         <div className="bg-white rounded shadow-sm h-100 overflow-hidden" style={{ borderTop: "6px solid #A1887F" }}>
-          <img src={firmenfeier} alt="Chefkoch" style={{ width: "100%", height: "320px", objectFit: "cover" }} />
+          <img src={firmenfeier} alt="Business Catering indisch Frankfurt" style={{ width: "100%", height: "320px", objectFit: "cover" }} />
           <div className="p-4">
             <div className="d-flex justify-content-between align-items-center mb-2">
-              <h5 className="fw-bold mb-0">Firmenfeiern</h5>
-              <span className="badge bg-warning text-dark">Firmen</span>
+              <h5 className="fw-bold mb-0">Business Events & Firmenfeiern</h5>
+              <span className="badge bg-warning text-dark">Business</span>
             </div>
             <p className="text-muted mb-2">
-              Bieten Sie Ihren Mitarbeitern ein unvergessliches Erlebnis mit indischem Essen und Live-Musik in unserem Restaurant.
+              Professionelles indisches Catering für Firmenevents in Frankfurt, Offenbach und Mainz. Perfekt für Meetings, Konferenzen und Firmenfeiern mit exquisiter indischer Küche.
             </p>
           </div>
         </div>
       </div>
     </div>
 
-        <div className="row g-4 mb-4">
-      {/* Live Sitar Musik */}
+    <div className="row g-4 mb-4">
+      {/* Reisegruppen */}
       <div className="col-md-6">
         <div className="bg-white rounded shadow-sm h-100 overflow-hidden" style={{ borderTop: "6px solid #A1887F" }}>
-          <img src={EventImage} alt="Sitar Musik" style={{ width: "100%", height: "320px", objectFit: "cover"}} />
+          <img src={Catering} alt="Indisches Restaurant für Reisegruppen Frankfurt" style={{ width: "100%", height: "320px", objectFit: "cover"}} />
           <div className="p-4">
             <div className="d-flex justify-content-between align-items-center mb-2">
-              <h5 className="fw-bold mb-0">Events</h5>
-              <span className="badge bg-warning text-dark">Speziel</span>
+              <h5 className="fw-bold mb-0">Reisegruppen & Touristen</h5>
+              <span className="badge bg-warning text-dark">Gruppen</span>
             </div>
             <p className="text-muted mb-2">
-              Genießen Sie unsere Events mit Live-Musik und besonderen Angeboten.
+              Spezielles Angebot für Reisegruppen im Rhein-Main-Gebiet. Genießen Sie authentische indische Küche in unserem Restaurant am Main oder nutzen Sie unseren Catering-Service für Ihre Gruppe. Ideal für Touristengruppen und Reiseveranstalter.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Kochkurs */}
+      {/* Lunchbox Service */}
       <div className="col-md-6">
         <div className="bg-white rounded shadow-sm h-100 overflow-hidden" style={{ borderTop: "6px solid #A1887F" }}>
-          <img src={mittagImage} alt="Chefkoch" style={{ width: "100%", height: "320px", objectFit: "cover" }} />
+          <img src={mittagImage} alt="Indische Lunchbox Frankfurt" style={{ width: "100%", height: "320px", objectFit: "cover" }} />
           <div className="p-4">
             <div className="d-flex justify-content-between align-items-center mb-2">
-              <h5 className="fw-bold mb-0">Mittagtisch</h5>
+              <h5 className="fw-bold mb-0">Lunchbox & Mittagsmenü</h5>
               <span className="badge bg-warning text-dark">Täglich</span>
             </div>
             <p className="text-muted mb-2">
-              Genießen Sie unser täglich wechselndes Mittagsmenü mit indischen Spezialitäten zu einem günstigen Preis.
+              Frisch zubereitete indische Lunchboxen für Büros und Unternehmen in Frankfurt. Täglich wechselnde authentische Gerichte, praktisch verpackt und pünktlich geliefert. Ideal für Meetings und Geschäftsessen.
             </p>
             <p className="fw-bold mb-0" style={{ color: "#5D4037" }}>
-              Montag bis Freitag: 11:30 - 14:30 Uhr
+              Lieferung: Montag bis Freitag, 11:30 - 14:30 Uhr
             </p>
           </div>
         </div>
@@ -803,11 +813,7 @@ const HeroSection = () => {
         </div>
       </section>
 
-
-<Footer />
-
-
-
+      <Footer />
     </>
   );
 };
