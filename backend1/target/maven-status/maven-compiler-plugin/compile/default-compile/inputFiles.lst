@@ -18,6 +18,7 @@ C:\Users\ggora\WeDo\Main Curry House\kronen\backend1\src\main\java\com\backend\g
 C:\Users\ggora\WeDo\Main Curry House\kronen\backend1\src\main\java\com\backend\model\Product.java
 C:\Users\ggora\WeDo\Main Curry House\kronen\backend1\src\main\java\com\backend\dataservice\controller\controller\OrderController.java
 C:\Users\ggora\WeDo\Main Curry House\kronen\backend1\src\main\java\com\backend\service\ReCaptchaService.java
+C:\Users\ggora\WeDo\Main Curry House\kronen\backend1\src\main\java\com\backend\config\RestTemplateConfig.java
 C:\Users\ggora\WeDo\Main Curry House\kronen\backend1\src\main\java\com\backend\dataservice\util\ProductRepository.java
 C:\Users\ggora\WeDo\Main Curry House\kronen\backend1\src\main\java\com\backend\auth\controller\AuthController.java
 C:\Users\ggora\WeDo\Main Curry House\kronen\backend1\src\main\java\com\backend\model\User.java
@@ -34,4 +35,5 @@ C:\Users\ggora\WeDo\Main Curry House\kronen\backend1\src\main\java\com\backend\p
 C:\Users\ggora\WeDo\Main Curry House\kronen\backend1\src\main\java\com\backend\dataservice\controller\controller\ProductController.java
 C:\Users\ggora\WeDo\Main Curry House\kronen\backend1\src\main\java\com\backend\model\OrderProduct.java
 C:\Users\ggora\WeDo\Main Curry House\kronen\backend1\src\main\java\com\backend\graphql\resolver\PaymentResponse.java
+C:\Users\ggora\WeDo\Main Curry House\kronen\backend1\src\main\java\com\backend\controller\ContactController.java
 C:\Users\ggora\WeDo\Main Curry House\kronen\backend1\src\main\java\com\backend\email\MailService.java

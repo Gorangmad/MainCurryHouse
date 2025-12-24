@@ -17,6 +17,13 @@ const OnlineOrdering = () => {
   const [addedToCart, setAddedToCart] = useState({});
 
   const today = new Date().getDay();
+  
+  // Prüfe auf Weihnachtsfeirtag (24.12.2025)
+  const now = new Date();
+  const christmasStart = new Date(2025, 11, 24); // 24. Dezember 2025
+  const christmasEnd = new Date(2025, 11, 25); // 25. Dezember 2025
+  const isChristmasDay = now >= christmasStart && now < christmasEnd;
+  
   // Alte Öffnungszeiten-Prüfung (auskommentiert)
   /*
   const isOpen = (() => {
@@ -41,8 +48,8 @@ const OnlineOrdering = () => {
   })();
   */
 
-  // Neue Version: Immer geöffnet
-  const isOpen = true;
+  // Neue Version: Immer geöffnet, außer am 24.12.
+  const isOpen = !isChristmasDay;
 
   useEffect(() => {
     fetch(getApiUrl('/products-data'))
@@ -78,7 +85,11 @@ const readCart = () => JSON.parse(localStorage.getItem("cart") || "[]");
 
 const addToCart = (product) => {
   if (!isOpen) {
-    alert("Wir nehmen Bestellungen nur während der Öffnungszeiten entgegen.");
+    if (isChristmasDay) {
+      alert("🎄 Unser Restaurant ist am 24.12.2025 geschlossen. Ab dem 25. Dezember sind wir wieder für Sie da!");
+    } else {
+      alert("Wir nehmen Bestellungen nur während der Öffnungszeiten entgegen.");
+    }
     return;
   }
 
@@ -185,8 +196,10 @@ const addToCart = (product) => {
             </span>
           ) : (
             <span className="badge bg-light text-dark px-4 py-3">
-              <FaTimesCircle className="me-2 text-danger" /> Momentan
-              geschlossen – bitte während der Öffnungszeiten bestellen
+              <FaTimesCircle className="me-2 text-danger" /> 
+              {isChristmasDay 
+                ? "🎄 Restaurant am 24.12.2025 geschlossen – Ab dem 25. Dezember geöffnet" 
+                : "Momentan geschlossen – bitte während der Öffnungszeiten bestellen"}
             </span>
           )}
         </div>

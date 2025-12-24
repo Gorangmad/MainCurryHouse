@@ -50,7 +50,6 @@ public class ReCaptchaService {
     }
 
     public boolean verifyRecaptcha(String recaptchaToken) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'verifyRecaptcha'");
+        return validateCaptcha(recaptchaToken);
     }
 }

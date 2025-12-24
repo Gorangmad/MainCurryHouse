@@ -42,14 +42,11 @@ const findZoneByPostcode = (postcode) => {
   return null;
 };
 
-const pricingFor = (postcode, subtotal) => {
+const pricingFor = (postcode) => {
   const zone = findZoneByPostcode(postcode);
   const min = zone?.min ?? ABS_MIN;
   const fee = zone?.fee ?? STD_DELIVERY;
-
-  // Lieferkosten werden immer berechnet, unabhängig vom Warenkorbwert
-  const delivery = fee;
-
+  const delivery = fee; // Lieferkosten immer berechnet (bei Lieferung)
   return { delivery: round2(delivery), min, zoneLabel: zone?.label ?? "DEFAULT", inZone: !!zone };
 };
 
@@ -66,26 +63,55 @@ export default function SummaryPageWrapper() {
       const data = JSON.parse(localStorage.getItem("checkoutFormData") || "{}");
       const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
+      // Prüfe auf Weihnachtsfeirtag (24.12.2025)
+      const now = new Date();
+      const christmasStart = new Date(2025, 11, 24); // 24. Dezember 2025
+      const christmasEnd = new Date(2025, 11, 25); // 25. Dezember 2025
+      
+      if (now >= christmasStart && now < christmasEnd) {
+        setValidationError("🎄 Unser Restaurant ist am 24.12.2025 geschlossen. Ab dem 25. Dezember sind wir wieder für Sie da!");
+        return;
+      }
+
+      // robustes Pickup-Flag (unterstützt mehrere mögliche Feldnamen)
+      const isPickup =
+        String(data?.fulfillment || data?.fulfilment || "")
+          .toLowerCase()
+          .includes("pickup") ||
+        String(data?.deliveryMethod || "").toLowerCase() === "pickup" ||
+        Boolean(data?.isPickup);
+
       const sub = savedCart.reduce(
         (sum, item) => sum + (item.price || item.unitPrice || 0) * (item.quantity || 1),
         0
       );
       setSubtotal(sub);
 
+      let delivery = 0;
 
-      if (sub < ABS_MIN) {
-        setValidationError(`Der Mindestbestellwert beträgt ${ABS_MIN} Euro.`);
-        return;
+      if (isPickup) {
+        // Bei Abholung keine Mindestbestellwert-Prüfung und keine Lieferkosten
+        delivery = 0;
+      } else {
+        // Lieferung: PLZ-Prüfung und zonenbezogene Mindestbestellwerte
+        const userPostcode = extractPostcode(data.postcode || "");
+        if (!userPostcode) {
+          setValidationError("Bitte geben Sie eine gültige Postleitzahl ein.");
+          return;
+        }
+        const { delivery: d, min, inZone } = pricingFor(userPostcode);
+        if (!inZone) {
+          setValidationError("Leider liefern wir nicht in Ihre Region.");
+          return;
+        }
+        if (sub < min) {
+          setValidationError(`Der Mindestbestellwert für Ihre Region beträgt ${min} Euro.`);
+          return;
+        }
+        delivery = d;
       }
 
-      const userPostcode = extractPostcode(data.postcode || "");
-      if (!userPostcode) {
-        setValidationError("Bitte geben Sie eine gültige Postleitzahl ein.");
-        return;
-      }
-      const { delivery } = pricingFor(userPostcode, sub);
       setDeliveryCost(delivery);
-
       const finalAmount = round2(sub + delivery);
       setTotalAmount(finalAmount);
 
@@ -102,6 +128,7 @@ export default function SummaryPageWrapper() {
           `,
         }),
       });
+
       const result = await response.json();
       setClientSecret(result?.data?.createPayment?.clientSecret || "");
     })();

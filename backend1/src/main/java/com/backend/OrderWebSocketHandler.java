@@ -36,7 +36,6 @@ public class OrderWebSocketHandler extends TextWebSocketHandler {
         return sessions.stream().anyMatch(WebSocketSession::isOpen);
     }
 
-    // 🔥 Diese Methode sendet neue Bestellungen an alle verbundenen Clients
     public void sendOrderUpdate(String orderJson) {
         for (WebSocketSession session : sessions) {
             try {

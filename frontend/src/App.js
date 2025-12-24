@@ -18,6 +18,7 @@ import Impressum from './pages/Impressum.jsx';
 import AGB from './pages/AGB.jsx';
 import OnlineOrdering from './pages/OrderPage.jsx';
 import SummaryPage from './pages/SummaryPage.jsx';
+import ChristmasPopup from './components/ChristmasPopup';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import SummaryPageWrapper from './pages/SummaryPageWrapper.jsx';
 
@@ -63,6 +64,7 @@ const App = () => {
 
   return (
     <Router>
+      <ChristmasPopup />
       {/* ✅ Wrap your app in the Stripe `<Elements>` component */}
       <Elements stripe={stripePromise}>
         <Routes>

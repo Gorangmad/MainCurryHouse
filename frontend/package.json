@@ -8,6 +8,7 @@
     "@stripe/react-stripe-js": "^3.1.1",
     "@stripe/stripe-js": "^5.7.0",
     "aos": "^2.3.4",
+    "apicache": "^1.6.3",
     "bootstrap": "^5.3.3",
     "cra-template": "1.2.0",
     "framer-motion": "^12.4.7",

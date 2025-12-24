@@ -200,7 +200,7 @@ const OnlineOrdering = () => {
           {/* Right side: Order + Cart */}
           <div className="d-flex align-items-center">
             <a href="/order" className="btn order-btn me-3 d-none d-lg-inline-flex" onClick={closeNavOnClick}>
-              Order Now
+              Jetzt Bestellen
             </a>
 
             <FaShoppingBag

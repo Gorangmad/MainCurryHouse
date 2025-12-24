@@ -19,11 +19,13 @@ com\backend\dataservice\controller\controller\UserController$3.class
 com\backend\model\OrderProduct.class
 com\backend\model\OrderType.class
 com\backend\model\ContactInput.class
+com\backend\config\RestTemplateConfig.class
 com\backend\dataservice\controller\controller\UserController.class
 com\backend\model\Product.class
 com\backend\dataservice\controller\controller\UserController$1.class
 com\backend\BackendApplication.class
 com\backend\model\RequestType.class
+com\backend\controller\ContactController.class
 com\backend\dataservice\util\OrderRepository.class
 com\backend\dataservice\controller\controller\ProductController.class
 com\backend\auth\util\UserDataUtil.class
@@ -37,4 +39,5 @@ com\backend\auth\controller\AuthController.class
 com\backend\dataservice\controller\controller\OrderController.class
 com\backend\model\Order.class
 com\backend\graphql\resolver\PaymentResolver.class
+com\backend\controller\ContactController$ContactRequest.class
 com\backend\user\controller\UserController.class
